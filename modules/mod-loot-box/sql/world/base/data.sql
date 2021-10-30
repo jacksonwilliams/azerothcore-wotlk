@@ -43,9 +43,12 @@ DELETE FROM `npc_vendor` WHERE `entry` = 5126979;
 INSERT INTO `npc_vendor` (`entry`, `slot`, `item`, `ExtendedCost`)
 VALUES
     (5126979, 0, 5621798, 3870077), -- Loot Box
-    (5126979, 1, 3386, 3870075), -- Potion of Curing
-    (5126979, 2, 6048, 3870075), -- Shadow Protection Potion
-    (5126979, 3, 3388, 3870075), -- Strong Troll's Blood Elixir
-    (5126979, 4, 45621, 3870075), -- Elixir of Minor Accuracy
-    (5126979, 5, 4496, 3870076), -- Small Brown Pouch
-    (5126979, 6, 4498, 3870077); -- Brown Leather Satchel
+    (5126979, 1, 1710, 3870075), -- Greater Healing Potion
+    (5126979, 2, 3827, 3870075), -- Mana Potion
+    (5126979, 3, 5634, 3870075), -- Free Action Potion
+    (5126979, 4, 3826, 3870075), -- Major Troll's Blood Elixir
+    (5126979, 5, 3386, 3870075), -- Potion of Curing
+    (5126979, 6, 6048, 3870075), -- Shadow Protection Potion
+    (5126979, 7, 45621, 3870075), -- Elixir of Minor Accuracy
+    (5126979, 8, 4498, 3870077), -- Brown Leather Satchel
+    (5126979, 9, 4497, 3870078); -- Heavy Brown Bag

@@ -20,7 +20,7 @@ const std::string BODY = "Congratulations, you got a reward but your inventory w
 
 bool isBannerItem(float result, int pity, int guarantee)
 {
-    return result <= 1 / (guarantee * (1 + std::min(pity, guarantee)));
+    return result <= 0.5f;
 }
 
 bool isPromotion(float result, int pity)

@@ -47,6 +47,7 @@ public:
 };
 
 static bool enabled;
+static float experienceMultiplier, goldMultiplier;
 
 class PlayerSettingsWorldScript : public WorldScript
 {
@@ -60,7 +61,9 @@ public:
 
     void SetInitialWorldSettings()
     {
-        enabled = sConfigMgr->GetBoolDefault("PlayerSettings.Enable", 1);
+        enabled = sConfigMgr->GetOption<bool>("PlayerSettings.Enable", 1);
+        experienceMultiplier = sConfigMgr->GetOption<float>("PlayerSettings.Experience", 0.1);
+        goldMultiplier = sConfigMgr->GetOption<float>("PlayerSettings.Gold", 0.1);
     }
 };
 
@@ -87,7 +90,7 @@ public:
                 PlayerSettingsMapInfo* mapInfo    = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
                 uint32                 nplayers   = std::max(mapInfo->nplayers, mapInfo->veto);
 
-                amount = amount * nplayers / maxPlayers * (1 + 0.5f * (nplayers - 1));
+                amount = amount * nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
 
                 uint32 bonus_xp       = 0;
                 bool   recruitAFriend = player->GetsRecruitAFriendBonus(true);
@@ -99,6 +102,20 @@ public:
 
                 amount += bonus_xp;
             }
+        }
+    }
+
+    void OnMoneyChanged(Player* player, int32& amount) override
+    {
+        Map* map = player->GetMap();
+
+        if (map->IsDungeon())
+        {
+            uint32                 maxPlayers = ((InstanceMap*) sMapMgr->FindMap(map->GetId(), map->GetInstanceId()))->GetMaxPlayers();
+            PlayerSettingsMapInfo* mapInfo    = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+            uint32                 nplayers   = std::max(mapInfo->nplayers, mapInfo->veto);
+
+            amount = amount * nplayers / maxPlayers * (1 + goldMultiplier * (nplayers - 1));
         }
     }
 };
@@ -405,7 +422,8 @@ public:
         if (!map->IsDungeon())
             return false;
 
-        handler->PSendSysMessage("Experience multiplier set to %.2f.", !nplayers ? 0 : (1 + 0.5f * (nplayers - 1)));
+        handler->PSendSysMessage("Experience multiplier set to %.2f.", !nplayers ? 0 : (1 + experienceMultiplier * (nplayers - 1)));
+        handler->PSendSysMessage("Gold multiplier set to %.2f.", !nplayers ? 0 : (1 + goldMultiplier * (nplayers - 1)));
 
         Creature* target = handler->getSelectedCreature();
         if (target)

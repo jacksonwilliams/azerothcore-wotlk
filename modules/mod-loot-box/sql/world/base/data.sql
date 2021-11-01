@@ -10,7 +10,10 @@ WHERE entry = 37711;
 
 UPDATE `item_template`
 SET `bonding` = 0, `maxcount` = 0
-WHERE `entry` IN (45037, 19160, 33223, 32588, 46779, 54455);
+WHERE `entry` IN (
+    38577, 46779 ,19160 ,33223 ,32588, 45037, 49283, 38312, 44819, 38577, 38233,
+    45047, 39286, 13583, 38312, 23709, 19054
+);
 
 DELETE FROM `creature_model_info` WHERE `DisplayID` = 7359065;
 INSERT INTO `creature_model_info` (`DisplayID`, `CombatReach`, `Gender`)

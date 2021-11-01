@@ -85,7 +85,7 @@ LootBox.NPC = 5126979
 LootBox.Box = 5621798
 
 #
-#    LootBox.Promotionals
+#    LootBox.Promotions
 #        Description: The item IDs of the promotional event items.
 #        Default:     "45037"
 #

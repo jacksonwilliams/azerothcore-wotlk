@@ -199,13 +199,6 @@ namespace lfg
 
         LOG_DEBUG("lfg", "FIND NEW GROUPS for: %s", newGuid.ToString().c_str());
 
-        if (CompatibleList.empty())
-        {
-            LfgCompatibility compatibility = CheckCompatibility(Lfg5Guids(), newGuid, foundMask, foundCount, std::set<Lfg5Guids>());
-            if (compatibility == LFG_COMPATIBLES_MATCH)
-                return LFG_COMPATIBLES_MATCH;
-        }
-
         // we have to take into account that FindNewGroups is called every X minutes if number of compatibles is low!
         // build set of already present compatibles for this guid
         std::set<Lfg5Guids> currentCompatibles;
@@ -219,7 +212,14 @@ namespace lfg
                 it->roles = r;
             }
 
-        LfgCompatibility compatibility = LFG_COMPATIBILITY_PENDING;
+        LfgCompatibility selfCompatibility = LFG_COMPATIBILITY_PENDING;
+        if (currentCompatibles.empty())
+        {
+            selfCompatibility = CheckCompatibility(Lfg5Guids(), newGuid, foundMask, foundCount, currentCompatibles);
+            if (selfCompatibility != LFG_COMPATIBLES_WITH_LESS_PLAYERS) // group is already compatible (a party of 5 players)
+                return selfCompatibility;
+        }
+
         for (Lfg5GuidsList::iterator it = CompatibleList.begin(); it != CompatibleList.end(); )
         {
             Lfg5GuidsList::iterator itr = it++;
@@ -236,7 +236,7 @@ namespace lfg
                 break;
         }
 
-        return compatibility;
+        return selfCompatibility;
     }
 
     LfgCompatibility LFGQueue::CheckCompatibility(Lfg5Guids const& checkWith, const ObjectGuid& newGuid, uint64& foundMask, uint32& foundCount, const std::set<Lfg5Guids>& currentCompatibles)
@@ -288,7 +288,8 @@ namespace lfg
         if (numLfgGroups > 1)
             return LFG_INCOMPATIBLES_MULTIPLE_LFG_GROUPS;
 
-        if (!sLFGMgr->IsTesting() && check.size() == 1 && numPlayers == 1)
+        // Group with less that MAXGROUPSIZE members always compatible
+        if (!sLFGMgr->IsTesting() && check.size() == 1 && numPlayers < MAXGROUPSIZE)
         {
             LfgQueueDataContainer::iterator itQueue = QueueDataStore.find(check.front());
             LfgRolesMap roles = itQueue->second.roles;
@@ -382,6 +383,22 @@ namespace lfg
             proposalDungeons = queue.dungeons;
             proposalRoles = queue.roles;
             LFGMgr::CheckGroupRoles(proposalRoles);          // assing new roles
+        }
+
+        // Enough players?
+        if (!sLFGMgr->IsTesting() && numPlayers != MAXGROUPSIZE)
+        {
+            strGuids.addRoles(proposalRoles);
+            for (uint8 i = 0; i < 5 && check.guids[i]; ++i)
+            {
+                LfgQueueDataContainer::iterator itr = QueueDataStore.find(check.guids[i]);
+                if (!itr->second.bestCompatible.empty()) // update if groups don't have it empty (for empty it will be generated in UpdateQueueTimers)
+                    UpdateBestCompatibleInQueue(itr, strGuids);
+            }
+            AddToCompatibles(strGuids);
+            foundMask |= addToFoundMask;
+            ++foundCount;
+            return LFG_COMPATIBLES_WITH_LESS_PLAYERS;
         }
 
         proposal.queues = strGuids;

@@ -15,6 +15,8 @@ WHERE `entry` IN (
     45047, 39286, 13583, 38312, 23709, 19054
 );
 
+UPDATE `item_template` SET `spellcharges_1` = -1 WHERE `entry` IN (13583, 39286);
+
 DELETE FROM `creature_model_info` WHERE `DisplayID` = 7359065;
 INSERT INTO `creature_model_info` (`DisplayID`, `CombatReach`, `Gender`)
 VALUES (7359065, 1.5, 1);

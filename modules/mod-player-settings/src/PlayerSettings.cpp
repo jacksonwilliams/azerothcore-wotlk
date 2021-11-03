@@ -125,42 +125,38 @@ class PlayerSettingsUnitScript : public UnitScript
 public:
     PlayerSettingsUnitScript() : UnitScript("PlayerSettingsUnitScript", true) {}
 
-    uint32 DealDamage(Unit* AttackerUnit, Unit* playerVictim, uint32 damage, DamageEffectType) override
-    {
-        return _DealDamage(playerVictim, AttackerUnit, damage);
-    }
-
     void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage) override
     {
-        damage = _DealDamage(target, attacker, damage);
+        damage = modify(target, attacker, damage);
     }
 
     void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage) override
     {
-        damage = _DealDamage(target, attacker, damage);
+        damage = modify(target, attacker, damage);
     }
 
     void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage) override
     {
-        damage = _DealDamage(target, attacker, damage);
+        damage = modify(target, attacker, damage);
     }
 
     void ModifyHealRecieved(Unit* target, Unit* attacker, uint32& damage) override
     {
-        damage = _DealDamage(target, attacker, damage);
+        damage = modify(target, attacker, damage);
     }
 
-    bool InDungeon(Unit* target, Unit* attacker)
+private:
+    bool inDungeon(Unit* target, Unit* attacker)
     {
         return target->GetMap()->IsDungeon() && attacker->GetMap()->IsDungeon();
     }
 
-    bool InBattleground(Unit* target, Unit* attacker)
+    bool inBattleground(Unit* target, Unit* attacker)
     {
         return target->GetMap()->IsBattleground() && attacker->GetMap()->IsBattleground();
     }
 
-    uint32 _DealDamage(Unit* target, Unit* attacker, uint32 damage)
+    uint32 modify(Unit* target, Unit* attacker, uint32 damage)
     {
         if (!enabled)
             return damage;
@@ -168,16 +164,13 @@ public:
         if (!attacker || attacker->GetTypeId() == TYPEID_PLAYER || !attacker->IsInWorld())
             return damage;
 
-        float damageMultiplier = attacker->CustomData.GetDefault<PlayerSettingsCreatureInfo>("PlayerSettingsCreatureInfo")->DamageMultiplier;
-
-        if (damageMultiplier == 1)
-            return damage;
-
-        if (!InDungeon(target, attacker) || !InBattleground(target, attacker))
+        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
             return damage;
 
         if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
             return damage;
+
+        float damageMultiplier = attacker->CustomData.GetDefault<PlayerSettingsCreatureInfo>("PlayerSettingsCreatureInfo")->DamageMultiplier;
 
         return damage * damageMultiplier;
     }

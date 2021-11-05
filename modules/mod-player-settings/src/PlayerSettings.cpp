@@ -109,7 +109,7 @@ public:
     {
         Map* map = player->GetMap();
 
-        if (map->IsDungeon())
+        if (map->IsDungeon() && amount > 0)
         {
             uint32                 maxPlayers = ((InstanceMap*) sMapMgr->FindMap(map->GetId(), map->GetInstanceId()))->GetMaxPlayers();
             PlayerSettingsMapInfo* mapInfo    = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");

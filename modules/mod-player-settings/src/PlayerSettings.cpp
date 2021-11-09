@@ -247,7 +247,7 @@ public:
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
                 {
                     if (Player* playerHandle = iter->GetSource())
-                        ChatHandler(player->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
+                        ChatHandler(playerHandle->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
                 }
             }
         }

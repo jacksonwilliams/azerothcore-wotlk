@@ -34,27 +34,23 @@ public:
 
             uint32 mapId = map->GetId();
 
-            if (mapId == RAGEFIRE_CHASM_MAP_ID && player->getLevel() > 21)
+            if (mapId == RAGEFIRE_CHASM_MAP_ID && player->getLevel() > 18)
                 disqualify(player, mapInfo);
-            else if ((mapId == DEADMINES_MAP_ID || mapId == WAILING_CAVERNS_MAP_ID) && player->getLevel() > 25)
+            else if ((mapId == DEADMINES_MAP_ID || mapId == WAILING_CAVERNS_MAP_ID) && player->getLevel() > 20)
                 disqualify(player, mapInfo);
-            else if (mapId == SHADOWFANG_KEEP_MAP_ID && player->getLevel() > 26)
+            else if (mapId == SHADOWFANG_KEEP_MAP_ID && player->getLevel() > 21)
                 disqualify(player, mapInfo);
-            else if (mapId == BLACKFATHOM_DEEPS_MAP_ID && player->getLevel() > 29)
+            else if (mapId == BLACKFATHOM_DEEPS_MAP_ID && player->getLevel() > 24)
                 disqualify(player, mapInfo);
-            else if (mapId == STORMWIND_STOCKADES_MAP_ID && player->getLevel() > 30)
+            else if (mapId == STORMWIND_STOCKADES_MAP_ID && player->getLevel() > 25)
                 disqualify(player, mapInfo);
-            else if (mapId == RAZORFEN_KRAUL_MAP_ID && player->getLevel() > 32)
+            else if (mapId == RAZORFEN_KRAUL_MAP_ID && player->getLevel() > 27)
                 disqualify(player, mapInfo);
-            else if (mapId == GNOMEREGAN_MAP_ID && player->getLevel() > 33)
+            else if (mapId == GNOMEREGAN_MAP_ID && player->getLevel() > 28)
                 disqualify(player, mapInfo);
-            else if (mapId == RAZORFEN_DOWNS_MAP_ID && player->getLevel() > 42)
+            else if (mapId == RAZORFEN_DOWNS_MAP_ID && player->getLevel() > 37)
                 disqualify(player, mapInfo);
-            else if (mapId == SCARLET_MONASTERY_MAP_ID && player->getLevel() > 45)
-                disqualify(player, mapInfo);
-            else if (mapId == ULDAMAN_MAP_ID && player->getLevel() > 45)
-                disqualify(player, mapInfo);
-            else if (mapId == MARAUDON_MAP_ID && player->getLevel() > 53)
+            else if ((mapId == SCARLET_MONASTERY_MAP_ID || mapId == ULDAMAN_MAP_ID) && player->getLevel() > 40)
                 disqualify(player, mapInfo);
 
             if (!mapInfo->hardcore)

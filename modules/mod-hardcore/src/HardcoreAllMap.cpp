@@ -1,7 +1,10 @@
 #include "Config.h"
 #include "Group.h"
-#include "Hardcore.h"
 #include "ScriptMgr.h"
+#include "Player.h"
+#include "DataMap.h"
+#include "Chat.h"
+#include "Hardcore.h"
 
 class HardcoreAllMapScript : public AllMapScript
 {

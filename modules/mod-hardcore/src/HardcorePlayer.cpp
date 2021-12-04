@@ -1,8 +1,9 @@
 #include "Chat.h"
 #include "Config.h"
-#include "Hardcore.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "DataMap.h"
+#include "Hardcore.h"
 
 class HardcorePlayer : public PlayerScript
 {

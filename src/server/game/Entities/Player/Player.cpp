@@ -1364,6 +1364,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
         RemoveAurasByType(SPELL_AURA_MOD_FEAR);
         RemoveAurasByType(SPELL_AURA_MOD_CONFUSE);
         RemoveAurasByType(SPELL_AURA_MOD_ROOT);
+        // remove auras that should be removed when being teleported
+        RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_TELEPORTED);
     }
 
     if (m_transport)
@@ -8844,7 +8846,7 @@ void Player::Whisper(std::string_view text, Language language, Player* target, b
 
     std::string _text(text);
 
-    if (!sScriptMgr->CanPlayerUseChat(this, CHAT_MSG_EMOTE, LANG_UNIVERSAL, _text, target))
+    if (!sScriptMgr->CanPlayerUseChat(this, CHAT_MSG_WHISPER, language, _text, target))
     {
         return;
     }

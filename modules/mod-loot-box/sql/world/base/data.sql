@@ -52,7 +52,7 @@ VALUES
     (5126979, 1, 4497, 3870077), -- Heavy Brown Bag
     (5126979, 2, 4499, 3870078), -- Huge Brown Bag
     (5126979, 3, 35223, 3870076), -- Papa Hummel's Old-Fashioned Pet Biscuit
-    (5126979, 4, 13480, 3870075), -- Major Healing Potion
+    (5126979, 4, 13446, 3870075), -- Major Healing Potion
     (5126979, 5, 13444, 3870075), -- Major Mana Potion
     (5126979, 6, 13462, 3870075), -- Purification Potion
     (5126979, 7, 3387, 3870075), -- Limited Invulnerability Potion

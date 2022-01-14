@@ -55,6 +55,16 @@ public:
                 disqualify(player, mapInfo);
             else if ((mapId == SCARLET_MONASTERY_MAP_ID || mapId == ULDAMAN_MAP_ID) && player->getLevel() > 40)
                 disqualify(player, mapInfo);
+            else if (mapId == MARAUDON_MAP_ID && player->getLevel() > 48)
+                disqualify(player, mapInfo);
+            else if (mapId == ZULFARRAK_MAP_ID && player->getLevel() > 46)
+                disqualify(player, mapInfo);
+            else if (mapId == SUNKEN_TEMPLE_MAP_ID && player->getLevel() > 50)
+                disqualify(player, mapInfo);
+            else if (mapId == BLACKROCK_DEPTHS_MAP_ID && player->getLevel() > 56)
+                disqualify(player, mapInfo);
+            else if (isSixtyDungeon(mapId) && player->getLevel() > 60)
+                disqualify(player, mapInfo);
 
             if (!mapInfo->hardcore)
                 return;
@@ -64,6 +74,14 @@ public:
     }
 
 private:
+    bool isSixtyDungeon(uint32 mapId)
+    {
+        return mapId == DIRE_MAUL_MAP_ID
+            || mapId == LOWER_BLACKROCK_SPIRE_MAP_ID
+            || mapId == SCHOLOMANCE_MAP_ID
+            || mapId == STRATHOLME_MAP_ID;
+    }
+
     void disqualify(Player* player, HardcoreMapInfo* mapInfo)
     {
         if (!mapInfo->hardcore)

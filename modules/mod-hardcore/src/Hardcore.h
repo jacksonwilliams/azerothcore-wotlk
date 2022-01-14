@@ -16,6 +16,13 @@
 #define RAZORFEN_DOWNS_MAP_ID          129
 #define ULDAMAN_MAP_ID                 70
 #define MARAUDON_MAP_ID                349
+#define ZULFARRAK_MAP_ID               209
+#define SUNKEN_TEMPLE_MAP_ID           109
+#define BLACKROCK_DEPTHS_MAP_ID        230
+#define DIRE_MAUL_MAP_ID               429
+#define LOWER_BLACKROCK_SPIRE_MAP_ID   229
+#define SCHOLOMANCE_MAP_ID             289
+#define STRATHOLME_MAP_ID              329
 
 // See: https://www.azerothcore.org/wiki/achievement
 #define DEADMINES_ACHIEVEMENT               628
@@ -30,6 +37,13 @@
 #define SCARLET_MONASTERY_ACHIEVEMENT       637
 #define ULDAMAN_ACHIEVEMENT                 638
 #define MARAUDON_ACHIEVEMENT                640
+#define ZULFARRAK_ACHIEVEMENT               639
+#define SUNKEN_TEMPLE_ACHIEVEMENT           641
+#define BLACKROCK_DEPTHS_ACHIEVEMENT        642
+#define DIRE_MAUL_ACHIEVEMENT               644
+#define LOWER_BLACKROCK_SPIRE_ACHIEVEMENT   643
+#define SCHOLOMANCE_ACHIEVEMENT             645
+#define STRATHOLME_ACHIEVEMENT              646
 
 class HardcoreMapInfo : public DataMap::Base
 {

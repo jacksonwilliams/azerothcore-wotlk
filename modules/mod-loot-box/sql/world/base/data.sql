@@ -12,10 +12,11 @@ UPDATE `item_template`
 SET `bonding` = 0, `maxcount` = 0
 WHERE `entry` IN (
     38577, 46779 ,19160, 33223, 32588, 45037, 49283, 38312, 44819, 38577, 38233,
-    45047, 39286, 13583, 38312, 23709, 19054, 38311, 44819, 39656, 33219
+    45047, 39286, 13583, 38312, 23709, 19054, 38311, 44819, 39656, 33219, 43489,
+    45063, 20371, 19055, 23709, 49290
 );
 
-UPDATE `item_template` SET `spellcharges_1` = -1 WHERE `entry` IN (13583, 39286, 39656);
+UPDATE `item_template` SET `spellcharges_1` = -1 WHERE `entry` IN (13583, 39286, 39656, 44819, 20371, 19055);
 
 DELETE FROM `creature_model_info` WHERE `DisplayID` = 7359065;
 INSERT INTO `creature_model_info` (`DisplayID`, `CombatReach`, `Gender`)
@@ -50,15 +51,20 @@ VALUES
     (5126979, 0, 5621798, 3870077), -- Loot Box
     (5126979, 1, 4497, 3870077), -- Heavy Brown Bag
     (5126979, 2, 4499, 3870078), -- Huge Brown Bag
-    (5126979, 3, 6149, 3870075), -- Greater Mana Potion
-    (5126979, 4, 3928, 3870075), -- Superior Healing Potion
-    (5126979, 5, 9030, 3870075), -- Restorative Potion
-    (5126979, 6, 9197, 3870075), -- Elixir of Dream Vision
-    (5126979, 7, 1710, 3870075), -- Greater Healing Potion
-    (5126979, 8, 3827, 3870075), -- Mana Potion
-    (5126979, 9, 5634, 3870075), -- Free Action Potion
-    (5126979, 10, 3826, 3870075), -- Major Troll's Blood Elixir
-    (5126979, 11, 3386, 3870075), -- Potion of Curing
-    (5126979, 12, 6048, 3870075), -- Shadow Protection Potion
-    (5126979, 13, 3388, 3870075), -- Strong Troll's Blood Elixir
-    (5126979, 14, 45621, 3870075); -- Elixir of Minor Accuracy
+    (5126979, 3, 35223, 3870076), -- Papa Hummel's Old-Fashioned Pet Biscuit
+    (5126979, 4, 13480, 3870075), -- Major Healing Potion
+    (5126979, 5, 13444, 3870075), -- Major Mana Potion
+    (5126979, 6, 13462, 3870075), -- Purification Potion
+    (5126979, 7, 3387, 3870075), -- Limited Invulnerability Potion
+    (5126979, 8, 6149, 3870075), -- Greater Mana Potion
+    (5126979, 9, 3928, 3870075), -- Superior Healing Potion
+    (5126979, 10, 9030, 3870075), -- Restorative Potion
+    (5126979, 11, 9197, 3870075), -- Elixir of Dream Vision
+    (5126979, 12, 1710, 3870075), -- Greater Healing Potion
+    (5126979, 13, 3827, 3870075), -- Mana Potion
+    (5126979, 14, 5634, 3870075), -- Free Action Potion
+    (5126979, 15, 3826, 3870075), -- Major Troll's Blood Elixir
+    (5126979, 16, 3386, 3870075), -- Potion of Curing
+    (5126979, 17, 6048, 3870075), -- Shadow Protection Potion
+    (5126979, 18, 3388, 3870075), -- Strong Troll's Blood Elixir
+    (5126979, 19, 45621, 3870075); -- Elixir of Minor Accuracy

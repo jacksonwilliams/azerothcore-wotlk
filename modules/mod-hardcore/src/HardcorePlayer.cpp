@@ -71,6 +71,13 @@ private:
         case SCARLET_MONASTERY_ACHIEVEMENT:
         case ULDAMAN_ACHIEVEMENT:
         case MARAUDON_ACHIEVEMENT:
+        case ZULFARRAK_ACHIEVEMENT:
+        case SUNKEN_TEMPLE_ACHIEVEMENT:
+        case BLACKROCK_DEPTHS_ACHIEVEMENT:
+        case DIRE_MAUL_ACHIEVEMENT:
+        case LOWER_BLACKROCK_SPIRE_ACHIEVEMENT:
+        case SCHOLOMANCE_ACHIEVEMENT:
+        case STRATHOLME_ACHIEVEMENT:
             if (player->HasAura(SPELL_AURA_HARDCORE))
                 return mapInfo->hardcore;
         default:

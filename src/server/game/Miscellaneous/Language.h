@@ -1248,7 +1248,9 @@ enum AcoreStrings
     LANG_CMD_SETTINGS_ANNOUNCER_ON      = 5080,
     LANG_CMD_SETTINGS_ANNOUNCER_OFF     = 5081,
 
-    // Room for more strings    5082-9999
+    LANG_CMD_GOQUEST_INVALID_SYNTAX     = 5082,
+
+    // Room for more strings    5083-9999
 
     // Level requirement notifications
     LANG_SAY_REQ                        = 6604,
@@ -1395,7 +1397,7 @@ enum AcoreStrings
     LANG_BAN_ACCOUNT_YOUBANNEDMESSAGE_WORLD       = 11006,
     LANG_BAN_ACCOUNT_YOUPERMBANNEDMESSAGE_WORLD   = 11007,
 
-    LANG_NPCINFO_INHABIT_TYPE                     = 11008,
+    LANG_NPCINFO_MOVEMENT_DATA                    = 11008,
     LANG_NPCINFO_FLAGS_EXTRA                      = 11009,
     LANG_INSTANCE_LOGIN_GAMEMASTER_EXCEPTION      = 11010,
 

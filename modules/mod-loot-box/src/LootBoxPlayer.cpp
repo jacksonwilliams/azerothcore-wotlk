@@ -51,7 +51,7 @@ private:
         if (map->GetEntry()->IsDungeon()) {
             Map::PlayerList const &players = map->GetPlayers();
 
-            if (!players.isEmpty()) {
+            if (!players.IsEmpty()) {
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter) {
                     if (Player *player = iter->GetSource()) {
                         player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::KillReward);

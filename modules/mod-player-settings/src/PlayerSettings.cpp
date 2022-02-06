@@ -84,13 +84,13 @@ public:
         {
             Map* map = player->GetMap();
 
-            if (map->IsDungeon())
+            if (map->IsDungeon() && !map->IsBattlegroundOrArena())
             {
                 uint32                 maxPlayers = ((InstanceMap*) sMapMgr->FindMap(map->GetId(), map->GetInstanceId()))->GetMaxPlayers();
                 PlayerSettingsMapInfo* mapInfo    = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
                 uint32                 nplayers   = std::max(mapInfo->nplayers, mapInfo->veto);
 
-                amount = amount * nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
+                amount = amount * 2 * nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
 
                 uint32 bonus_xp       = 0;
                 bool   recruitAFriend = player->GetsRecruitAFriendBonus(true);
@@ -199,7 +199,7 @@ public:
         {
             Map::PlayerList const& playerList = map->GetPlayers();
 
-            if (!playerList.isEmpty() && mapInfo->nplayers > 1)
+            if (!playerList.IsEmpty() && mapInfo->nplayers > 1)
             {
                 for (Map::PlayerList::const_iterator iter = playerList.begin(); iter != playerList.end(); ++iter)
                 {
@@ -242,7 +242,7 @@ public:
         {
             Map::PlayerList const& players = map->GetPlayers();
 
-            if (!players.isEmpty() && mapInfo->nplayers > 0)
+            if (!players.IsEmpty() && mapInfo->nplayers > 0)
             {
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
                 {
@@ -372,7 +372,7 @@ public:
         }
 
         Map::PlayerList const& players = map->GetPlayers();
-        if (!players.isEmpty())
+        if (!players.IsEmpty())
         {
             for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
             {

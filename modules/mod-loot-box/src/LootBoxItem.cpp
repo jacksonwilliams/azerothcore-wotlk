@@ -67,7 +67,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
     ItemTemplate const *proto = sObjectMgr->GetItemTemplate(itemId);
 
     if (!proto) {
-        sLog->outError("[Loot Box] Item ID is invalid: %u", itemId);
+        LOG_ERROR("server", "[Loot Box] Item ID is invalid: %u", itemId);
         return false;
     }
 
@@ -148,7 +148,7 @@ void LootBoxItem::openLootBox(Player *player, Item *box, struct Pity pity, enum 
 
     if (!pool.size()) {
         ChatHandler(player->GetSession()).PSendSysMessage("Failed to open loot box.");
-        sLog->outError("[Loot Box] No rewards configured.");
+        LOG_ERROR("server", "[Loot Box] No rewards configured.");
         return;
     }
  

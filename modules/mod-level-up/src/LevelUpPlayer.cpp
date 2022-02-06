@@ -65,7 +65,7 @@ private:
         ItemTemplate const *proto = sObjectMgr->GetItemTemplate(itemId);
 
         if (!proto) {
-            sLog->outError("[LevelUp] Item ID is invalid: %u", itemId);
+            LOG_ERROR("server", "[LevelUp] Item ID is invalid: %u", itemId);
             return;
         }
 

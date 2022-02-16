@@ -37,11 +37,11 @@ INSERT INTO `creature_template` (
 -- Replace Landro Longshot.
 DELETE FROM `creature` WHERE `guid` = 565;
 INSERT INTO `creature` (
-    `guid`, `id1`, `modelid`, `equipment_id`, `position_x`, `position_y`,
+    `guid`, `id1`, `equipment_id`, `position_x`, `position_y`,
     `position_z`, `orientation`, `spawntimesecs`, `wander_distance`,
     `curhealth`
 ) VALUES (
-    565, 5126979, 11689, 0, -14397.5, 426.08, 7.97355, 5.51524, 300, 0, 4979
+    565, 5126979, 0, -14397.5, 426.08, 7.97355, 5.51524, 300, 0, 4979
 );
 -- Rename `subname` of the two guards.
 UPDATE `creature_template` SET `subname` = 'Wobbling Goblin' WHERE `entry` = 21045;

@@ -37,7 +37,7 @@ INSERT INTO `creature_template` (
 -- Replace Landro Longshot.
 DELETE FROM `creature` WHERE `guid` = 565;
 INSERT INTO `creature` (
-    `guid`, `id`, `modelid`, `equipment_id`, `position_x`, `position_y`,
+    `guid`, `id1`, `modelid`, `equipment_id`, `position_x`, `position_y`,
     `position_z`, `orientation`, `spawntimesecs`, `wander_distance`,
     `curhealth`
 ) VALUES (

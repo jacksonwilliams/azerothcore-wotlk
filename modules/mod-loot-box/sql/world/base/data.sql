@@ -13,10 +13,12 @@ SET `bonding` = 0, `maxcount` = 0
 WHERE `entry` IN (
     38577, 46779 ,19160, 33223, 32588, 45037, 49283, 38312, 44819, 38577, 38233,
     45047, 39286, 13583, 38312, 23709, 19054, 38311, 44819, 39656, 33219, 43489,
-    45063, 20371, 19055, 23709, 49290
+    45063, 20371, 19055, 23709, 49290, 49704, 54212, 49663, 49662, 23705, 23193
 );
 
-UPDATE `item_template` SET `spellcharges_1` = -1 WHERE `entry` IN (13583, 39286, 39656, 44819, 20371, 19055);
+UPDATE `item_template` SET `spellcharges_1` = -1 WHERE `entry` IN (
+    13583, 39286, 39656, 44819, 20371, 19055, 49663, 49662
+);
 
 DELETE FROM `creature_model_info` WHERE `DisplayID` = 7359065;
 INSERT INTO `creature_model_info` (`DisplayID`, `CombatReach`, `Gender`)

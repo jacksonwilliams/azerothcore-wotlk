@@ -77,7 +77,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
     Item *item = Item::CreateItem(itemId, count);
     ItemPosCountVec dest;
 
-    CharacterDatabase.PExecute(
+    CharacterDatabase.Execute(
         "INSERT INTO `lootbox` (`player`, `item`, `rarity`, `banner`)"
         "VALUES (%u, %u, %u, %u)",
         player->GetGUID().GetCounter(), itemId, rarity, banner
@@ -179,7 +179,7 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
     if ((uint32)LootBoxWorld::Box != box->GetEntry())
         return false;
 
-    QueryResult rows = CharacterDatabase.PQuery(
+    QueryResult rows = CharacterDatabase.Query(
         "SELECT `rarity`, `banner` FROM `lootbox`"
         "WHERE `player` = %u ORDER BY `id` ASC",
         player->GetGUID().GetCounter()
@@ -189,8 +189,8 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
     if (rows) {
         do {
             Field *row = rows->Fetch();
-            enum Rarity rarity = (enum Rarity)row[0].GetInt8();
-            enum Banner banner = (enum Banner)row[1].GetInt8();
+            enum Rarity rarity = (enum Rarity)row[0].Get<int8>();
+            enum Banner banner = (enum Banner)row[1].Get<int8>();
 
             switch (rarity) {
                 case RARITY_FIVE_STAR:

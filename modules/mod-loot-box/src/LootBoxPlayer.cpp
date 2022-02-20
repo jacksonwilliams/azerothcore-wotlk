@@ -17,8 +17,8 @@ public:
             ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Loot Box |rmodule.");
 
         uint32 guid = player->GetGUID().GetCounter();
-        QueryResult result = CharacterDatabase.PQuery("SELECT `logout_time` FROM `characters` WHERE guid = %u", guid);
-        std::chrono::system_clock::time_point logout_time_point(std::chrono::seconds(result->Fetch()->GetUInt32()));
+        QueryResult result = CharacterDatabase.Query("SELECT `logout_time` FROM `characters` WHERE guid = %u", guid);
+        std::chrono::system_clock::time_point logout_time_point(std::chrono::seconds(result->Fetch()->Get<uint32>()));
         time_t logout_time = std::chrono::system_clock::to_time_t(logout_time_point);
         time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         time_t reset = getReset();

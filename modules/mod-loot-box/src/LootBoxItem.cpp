@@ -79,7 +79,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
 
     CharacterDatabase.Execute(
         "INSERT INTO `lootbox` (`player`, `item`, `rarity`, `banner`)"
-        "VALUES (%u, %u, %u, %u)",
+        "VALUES ('{}', '{}', '{}', '{}')",
         player->GetGUID().GetCounter(), itemId, rarity, banner
     );
     item->SaveToDB(trans);
@@ -181,7 +181,7 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
 
     QueryResult rows = CharacterDatabase.Query(
         "SELECT `rarity`, `banner` FROM `lootbox`"
-        "WHERE `player` = %u ORDER BY `id` ASC",
+        "WHERE `player` = '{}' ORDER BY `id` ASC",
         player->GetGUID().GetCounter()
     );
 

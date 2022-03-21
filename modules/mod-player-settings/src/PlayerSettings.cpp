@@ -272,7 +272,7 @@ public:
         if (!creature || !creature->GetMap())
             return;
 
-        if (!creature->GetMap()->IsDungeon() && !creature->GetMap()->IsBattleground())
+        if (!creature->GetMap()->IsDungeon())
             return;
 
         if (((creature->IsHunterPet() || creature->IsPet() || creature->IsSummon()) && creature->IsControlledByPlayer()))

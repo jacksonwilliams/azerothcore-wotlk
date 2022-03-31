@@ -350,16 +350,20 @@ class PlayerSettingsCommandScript : public CommandScript
 public:
     PlayerSettingsCommandScript() : CommandScript("PlayerSettingsCommandScript") {}
 
-    std::vector<ChatCommand> GetCommands() const
+    Acore::ChatCommands::ChatCommandTable GetCommands() const
     {
-        static std::vector<ChatCommand> commands = {{"players", SEC_PLAYER, false, &HandlePlayersCommand, ""}, {"playersettings", SEC_GAMEMASTER, false, &HandlePlayerSettingsCommand, ""}};
+        static Acore::ChatCommands::ChatCommandTable commands = 
+        {
+            {"players", HandlePlayersCommand, SEC_PLAYER, Acore::ChatCommands::Console::No},
+            {"playersettings", HandlePlayerSettingsCommand, SEC_GAMEMASTER, Acore::ChatCommands::Console::No}
+        };
 
         return commands;
     }
 
-    static bool HandlePlayersCommand(ChatHandler* handler, const char* args)
+    static bool HandlePlayersCommand(ChatHandler* handler, std::string args)
     {
-        char*                  x          = strtok((char*) args, " ");
+        char*                  x          = strtok((char*) args.c_str(), " ");
         Player*                player     = handler->getSelectedPlayerOrSelf();
         Map*                   map        = player->GetMap();
         PlayerSettingsMapInfo* mapInfo    = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
@@ -404,7 +408,7 @@ public:
         return true;
     }
 
-    static bool HandlePlayerSettingsCommand(ChatHandler* handler, const char* /*args*/)
+    static bool HandlePlayerSettingsCommand(ChatHandler* handler)
     {
 
         Player*                player   = handler->getSelectedPlayerOrSelf();

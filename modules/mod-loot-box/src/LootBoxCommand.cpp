@@ -9,22 +9,22 @@ class LootBoxCommand : public CommandScript
 public:
     LootBoxCommand() : CommandScript("LootBoxCommand") {}
 
-    std::vector<ChatCommand> GetCommands() const override
+    Acore::ChatCommands::ChatCommandTable GetCommands() const override
     {
-        static std::vector<ChatCommand> rewards =
+        static Acore::ChatCommands::ChatCommandTable rewards =
         {
-            {"macaroons", SEC_CONSOLE, true, &HandleDailyMacaroons, ""}
+            {"macaroons", HandleDailyMacaroons, SEC_CONSOLE, Acore::ChatCommands::Console::Yes} 
         };
 
-        static std::vector<ChatCommand> commands =
+        static Acore::ChatCommands::ChatCommandTable commands =
         {
-            {"daily", SEC_CONSOLE, true, nullptr, "", rewards}
+            {"daily", rewards}
         };
 
         return commands;
     }
 
-    static bool HandleDailyMacaroons(ChatHandler */*handler*/, const char */*args*/)
+    static bool HandleDailyMacaroons(ChatHandler */*handler*/)
     {
         SessionMap const &sessions = sWorld->GetAllSessions();
 

@@ -39,7 +39,7 @@ private:
 
     float roll();
     int randomId(std::vector<int> ids);
-    void openLootBox(Player *player, Item *item, struct Pity pity, enum Rarity rarity);
+    void openLootBox(Player *player, Item *item, enum Rarity rarity);
     bool sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity rarity, enum Banner banner);
 };
 

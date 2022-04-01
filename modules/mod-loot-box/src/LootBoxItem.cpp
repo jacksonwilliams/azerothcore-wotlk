@@ -18,15 +18,14 @@ const std::string SUBJECT = "Loot Box reward";
 const std::string BODY = "Congratulations, you got a reward but your inventory was full."
     "Please take your reward when you free space from your inventory";
 
-bool isBannerItem(float result, int pity, int guarantee)
+bool isBannerItem(float result)
 {
     return result <= 0.5f;
 }
 
-bool isPromotion(float result, int pity)
+bool isPromotion(float result)
 {
-    return !LootBoxWorld::FiveStars.size()
-        || (isBannerItem(result, pity, LootBoxWorld::PromotionalGuarantee) && LootBoxWorld::Promotions.size());
+    return !LootBoxWorld::FiveStars.size() || (isBannerItem(result) && LootBoxWorld::Promotions.size());
 }
 
 bool isEpic()
@@ -34,10 +33,9 @@ bool isEpic()
     return LootBoxWorld::FiveStars.size();
 }
 
-bool isFeatured(float roll, int pity)
+bool isFeatured(float roll)
 {
-    return !LootBoxWorld::FourStars.size()
-        || (isBannerItem(roll, pity, LootBoxWorld::FeaturedGuarantee) && LootBoxWorld::Features.size());
+    return !LootBoxWorld::FourStars.size() || (isBannerItem(roll) && LootBoxWorld::Features.size());
 }
 
 bool isRare()
@@ -103,14 +101,14 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
     return true;
 }
 
-void LootBoxItem::openLootBox(Player *player, Item *box, struct Pity pity, enum Rarity rarity)
+void LootBoxItem::openLootBox(Player *player, Item *box, enum Rarity rarity)
 {
     std::vector<int> pool;
     enum Banner banner;
 
     switch (rarity) {
         case RARITY_FIVE_STAR:
-            if (isPromotion(roll(), pity.promotional)) {
+            if (isPromotion(roll())) {
                 rarity = RARITY_FIVE_STAR;
                 banner = BANNER_PROMOTIONAL;
                 pool = LootBoxWorld::Promotions;
@@ -122,7 +120,7 @@ void LootBoxItem::openLootBox(Player *player, Item *box, struct Pity pity, enum 
                 break;
             }
         case RARITY_FOUR_STAR:
-            if (isFeatured(roll(), pity.featured)) {
+            if (isFeatured(roll())) {
                 rarity = RARITY_FOUR_STAR;
                 banner = BANNER_FEATURED;
                 pool = LootBoxWorld::Features;
@@ -219,7 +217,7 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
 
     float result = roll();
     if (result <= LootBoxWorld::FiveStarRate) {
-        openLootBox(player, box, pity, RARITY_FIVE_STAR);
+        openLootBox(player, box, RARITY_FIVE_STAR);
         return true;
     }
 
@@ -229,15 +227,15 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
         result = roll();
 
         if ((result <= epic) || (pity.epic > (LootBoxWorld::FiveStarGuarantee - LootBoxWorld::FourStarGuarantee))) {
-            openLootBox(player, box, pity, RARITY_FIVE_STAR);
+            openLootBox(player, box, RARITY_FIVE_STAR);
             return true;
         }
 
-        openLootBox(player, box, pity, RARITY_FOUR_STAR);
+        openLootBox(player, box, RARITY_FOUR_STAR);
         return true;
     }
 
-    openLootBox(player, box, pity, RARITY_THREE_STAR);
+    openLootBox(player, box, RARITY_THREE_STAR);
     return true;
 }
 

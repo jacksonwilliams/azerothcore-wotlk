@@ -19,6 +19,9 @@ const float Offence5M = 1 / 3.5f, Defence5M = 1 / 1.5f;
 // 10 man: 2 tank, 6 dps, 2 healer = 7.0 offensive units and 3.0 defensive units.
 const float Offence10M = 1 / 7.0f, Defence10M = 1 / 3.0f;
 
+// 20 man: 2 tank, 14 dps, 4 healer = 14.5 offensive units and 6.5 defensive units
+const float Offence20M = 1 / 15.0f, Defence20M = 1 / 5.0f;
+
 // 25 man: 3 tank, 17 dps, 5 healer = 18.5 offensive units and 6.5 defensive units.
 const float Offence25M = 1 / 18.5f, Defence25M = 1 / 6.5f;
 
@@ -92,7 +95,7 @@ public:
 
                 amount = amount * 2 * nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
 
-                uint32 bonus_xp       = 0;
+                /*uint32 bonus_xp       = 0;
                 bool   recruitAFriend = player->GetsRecruitAFriendBonus(true);
 
                 if (recruitAFriend)
@@ -100,7 +103,7 @@ public:
                 else
                     bonus_xp = victim ? player->GetXPRestBonus(amount) : 0;
 
-                amount += bonus_xp;
+                amount += bonus_xp;*/
             }
         }
     }
@@ -309,6 +312,9 @@ public:
                 offence = Offence10M;
                 defence = Defence10M;
                 break;
+            case 20:
+                offence = Offence20M;
+                defence = Defence20M;
             case 25:
                 offence = Offence25M;
                 defence = Defence25M;

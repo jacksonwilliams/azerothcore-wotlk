@@ -1,0 +1,13 @@
+[worldserver]
+
+########################################
+# GainHonorBoss configuration
+########################################
+#
+#    GainHonorBoss.Enable
+#        Description: Enable honor gains from dungeons
+#        Default:     0 - Disabled
+#                     1 - Enabled
+#
+
+GainHonorBoss.Enable = 1

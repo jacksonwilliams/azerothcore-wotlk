@@ -58,22 +58,23 @@ VALUES
     (5126979, 4, 13458, 3870075), -- Greater Nature Protection Potion
     (5126979, 5, 13457, 3870075), -- Greater Fire Protection Potion
     (5126979, 6, 13461, 3870075), -- Greater Arcane Protection Potion
-    (5126979, 7, 13510, 3870077), -- Flask of the Titans
-    (5126979, 8, 13512, 3870077), -- Flask of Supreme Power
-    (5126979, 9, 13511, 3870077), -- Flask of Distilled Wisdom
-    (5126979, 10, 13446, 3870075), -- Major Healing Potion
-    (5126979, 11, 13444, 3870075), -- Major Mana Potion
-    (5126979, 12, 13462, 3870075), -- Purification Potion
-    (5126979, 13, 3387, 3870075), -- Limited Invulnerability Potion
-    (5126979, 14, 6149, 3870075), -- Greater Mana Potion
-    (5126979, 15, 3928, 3870075), -- Superior Healing Potion
-    (5126979, 16, 9030, 3870075), -- Restorative Potion
-    (5126979, 17, 9197, 3870075), -- Elixir of Dream Vision
-    (5126979, 18, 1710, 3870075), -- Greater Healing Potion
-    (5126979, 19, 3827, 3870075), -- Mana Potion
-    (5126979, 20, 5634, 3870075), -- Free Action Potion
-    (5126979, 21, 3826, 3870075), -- Major Troll's Blood Elixir
-    (5126979, 22, 3386, 3870075), -- Potion of Curing
-    (5126979, 23, 6048, 3870075), -- Shadow Protection Potion
-    (5126979, 24, 3388, 3870075), -- Strong Troll's Blood Elixir
-    (5126979, 25, 45621, 3870075); -- Elixir of Minor Accuracy
+    (5126979, 7, 13459, 3870075), -- Greater Shadow Protection Potion
+    (5126979, 8, 13510, 3870077), -- Flask of the Titans
+    (5126979, 9, 13512, 3870077), -- Flask of Supreme Power
+    (5126979, 10, 13511, 3870077), -- Flask of Distilled Wisdom
+    (5126979, 11, 13446, 3870075), -- Major Healing Potion
+    (5126979, 12, 13444, 3870075), -- Major Mana Potion
+    (5126979, 13, 13462, 3870075), -- Purification Potion
+    (5126979, 14, 3387, 3870075), -- Limited Invulnerability Potion
+    (5126979, 15, 6149, 3870075), -- Greater Mana Potion
+    (5126979, 16, 3928, 3870075), -- Superior Healing Potion
+    (5126979, 17, 9030, 3870075), -- Restorative Potion
+    (5126979, 18, 9197, 3870075), -- Elixir of Dream Vision
+    (5126979, 19, 1710, 3870075), -- Greater Healing Potion
+    (5126979, 20, 3827, 3870075), -- Mana Potion
+    (5126979, 21, 5634, 3870075), -- Free Action Potion
+    (5126979, 22, 3826, 3870075), -- Major Troll's Blood Elixir
+    (5126979, 23, 3386, 3870075), -- Potion of Curing
+    (5126979, 24, 6048, 3870075), -- Shadow Protection Potion
+    (5126979, 25, 3388, 3870075), -- Strong Troll's Blood Elixir
+    (5126979, 26, 45621, 3870075); -- Elixir of Minor Accuracy

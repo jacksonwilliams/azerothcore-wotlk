@@ -5,6 +5,7 @@
 #include "Config.h"
 #include "Chat.h"
 #include "LootBoxWorld.h"
+#include "Group.h"
 
 class LootBoxPlayer : public PlayerScript
 {
@@ -30,6 +31,24 @@ public:
     void OnLevelChanged(Player *player, uint8 /*oldlevel*/) override
     {
         player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
+
+        Map* map = player->GetMap();
+        if (map) {
+            Map::PlayerList const& players = map->GetPlayers();
+
+            if (!players.IsEmpty()) {
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter) {
+                    if (Player * target = iter->GetSource()) {
+                        if (target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId()) {
+                            Group* group = player->GetGroup();
+                            if (group && group->IsMember(target->GetGUID()) && player->IsAtRecruitAFriendDistance(target)) {
+                                target->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     void OnCreatureKill(Player *killer, Creature *killed) override

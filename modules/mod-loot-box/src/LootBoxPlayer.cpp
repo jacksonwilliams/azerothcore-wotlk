@@ -32,20 +32,16 @@ public:
     {
         player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
 
-        Map* map = player->GetMap();
-        if (map) {
-            Map::PlayerList const& players = map->GetPlayers();
+        if (player->GetsRecruitAFriendBonus(true)) {
+            if (Group* group = player->GetGroup()) {
+                for (GroupReference* itr = group->GetFirstMember(); itr != nullptr; itr = itr->next()) {
+                    Player* target = itr->GetSource();
 
-            if (!players.IsEmpty()) {
-                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter) {
-                    if (Player * target = iter->GetSource()) {
-                        if (target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId()) {
-                            Group* group = player->GetGroup();
-                            if (group && group->IsMember(target->GetGUID()) && player->IsAtRecruitAFriendDistance(target)) {
-                                target->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
-                            }
-                        }
-                    }
+                    if (!target)
+                        continue;
+
+                    if (target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId())
+                        target->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
                 }
             }
         }

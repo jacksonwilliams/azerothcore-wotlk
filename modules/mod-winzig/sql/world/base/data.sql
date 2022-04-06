@@ -28,10 +28,10 @@ INSERT INTO `creature_template` (
     `entry`, `modelid1`, `name`, `subname`, `gossip_menu_id`, `minlevel`,
     `maxlevel`, `faction`, `npcflag`, `DamageModifier`, `BaseAttackTime`,
     `RangeAttackTime`, `unit_class`, `unit_flags`, `unit_flags2`, `type`,
-    `flags_extra`, `VerifiedBuild`
+    `flags_extra`, `ScriptName`, `VerifiedBuild`
 ) VALUES (
     5126979, 11689, 'Winzig', 'Wobbling Goblin', 0, 60, 60, 35, 129, 1,
-    2000, 2000, 4, 768, 2048, 7, 2, 12340
+    2000, 2000, 4, 768, 2048, 7, 2, 'npc_winzig', 12340
 );
 -- Replace Landro Longshot.
 DELETE FROM `creature` WHERE `guid` = 565;

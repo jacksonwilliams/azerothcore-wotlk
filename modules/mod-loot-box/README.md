@@ -1,9 +1,9 @@
 # ![logo](https://raw.githubusercontent.com/azerothcore/azerothcore.github.io/master/images/logo-github.png) AzerothCore
 
-## mod-loot-box
+## mod-winzig
 
 ### Description
-Based on [Genshin Impact](https://genshin.mihoyo.com/en/), provides a module and instructions to create a loot box, custom currency, and custom NPC.
+Based on [Genshin Impact](https://genshin.mihoyo.com/en/), provides a module and instructions to create a loot box, custom currency, and custom NPC that also acts as a reagent vendor.
 
 ### How to use ingame
 1. Acquire currency

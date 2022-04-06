@@ -2,12 +2,12 @@
 #include "Player.h"
 #include "Chat.h"
 #include "World.h"
-#include "LootBoxWorld.h"
+#include "WinzigWorld.h"
 
-class LootBoxCommand : public CommandScript
+class WinzigCommand : public CommandScript
 {
 public:
-    LootBoxCommand() : CommandScript("LootBoxCommand") {}
+    WinzigCommand() : CommandScript("WinzigCommand") {}
 
     Acore::ChatCommands::ChatCommandTable GetCommands() const override
     {
@@ -35,14 +35,14 @@ public:
             Player *player = itr->second->GetPlayer();
 
             ChatHandler(player->GetSession()).PSendSysMessage("Daily login reward!");
-            player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::DailyReward);
+            player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::DailyReward);
         }
 
         return true;
     }
 };
 
-void AddLootBoxCommandScripts()
+void AddWinzigCommandScripts()
 {
-    new LootBoxCommand();
+    new WinzigCommand();
 }

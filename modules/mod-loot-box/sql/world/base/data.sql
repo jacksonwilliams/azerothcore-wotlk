@@ -1,5 +1,3 @@
--- Put only sql data in this file (insert, update, replace into, delete etc...).
-
 DELETE FROM `item_template` WHERE `entry` = 5621798;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
 VALUES (5621798, 'Loot Box', 12331, 6, 250, 7931299, 1000, "I can't believe it's not gambling!", 'LootBoxItem');
@@ -32,7 +30,7 @@ INSERT INTO `creature_template` (
     `RangeAttackTime`, `unit_class`, `unit_flags`, `unit_flags2`, `type`,
     `flags_extra`, `VerifiedBuild`
 ) VALUES (
-    5126979, 11689, 'Winzig', 'Wobbling Goblin', 0, 60, 60, 35, 128, 1,
+    5126979, 11689, 'Winzig', 'Wobbling Goblin', 0, 60, 60, 35, 129, 1,
     2000, 2000, 4, 768, 2048, 7, 2, 12340
 );
 -- Replace Landro Longshot.

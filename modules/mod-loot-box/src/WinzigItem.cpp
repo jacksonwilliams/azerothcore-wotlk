@@ -4,8 +4,8 @@
 #include "DatabaseEnv.h"
 #include "Item.h"
 #include "Player.h"
-#include "LootBoxItem.h"
-#include "LootBoxWorld.h"
+#include "WinzigItem.h"
+#include "WinzigWorld.h"
 
 struct Pity {
     int promotional;
@@ -25,42 +25,42 @@ bool isBannerItem(float result)
 
 bool isPromotion(float result)
 {
-    return !LootBoxWorld::FiveStars.size() || (isBannerItem(result) && LootBoxWorld::Promotions.size());
+    return !WinzigWorld::FiveStars.size() || (isBannerItem(result) && WinzigWorld::Promotions.size());
 }
 
 bool isEpic()
 {
-    return LootBoxWorld::FiveStars.size();
+    return WinzigWorld::FiveStars.size();
 }
 
 bool isFeatured(float roll)
 {
-    return !LootBoxWorld::FourStars.size() || (isBannerItem(roll) && LootBoxWorld::Features.size());
+    return !WinzigWorld::FourStars.size() || (isBannerItem(roll) && WinzigWorld::Features.size());
 }
 
 bool isRare()
 {
-    return LootBoxWorld::FourStars.size();
+    return WinzigWorld::FourStars.size();
 }
 
 bool isCommon()
 {
-    return LootBoxWorld::ThreeStars.size();
+    return WinzigWorld::ThreeStars.size();
 }
 
-float LootBoxItem::roll()
+float WinzigItem::roll()
 {
     return dis(gen);
 }
 
-int LootBoxItem::randomId(std::vector<int> ids)
+int WinzigItem::randomId(std::vector<int> ids)
 {
     std::uniform_int_distribution<> dis(0, ids.size() - 1);
     int i = dis(gen);
     return ids[i];
 }
 
-bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity rarity, enum Banner banner)
+bool WinzigItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity rarity, enum Banner banner)
 {
     ItemTemplate const *proto = sObjectMgr->GetItemTemplate(itemId);
 
@@ -71,7 +71,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
 
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
 
-    uint32 count = proto->Stackable >= LootBoxWorld::StackSize ? uint32(LootBoxWorld::StackSize) : uint32(proto->Stackable);
+    uint32 count = proto->Stackable >= WinzigWorld::StackSize ? uint32(WinzigWorld::StackSize) : uint32(proto->Stackable);
     Item *item = Item::CreateItem(itemId, count);
     ItemPosCountVec dest;
 
@@ -91,7 +91,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
 
     player->SendEquipError(msg, item);
     ChatHandler(player->GetSession()).PSendSysMessage("You will receive your reward in the mail.");
-    MailSender sender(LootBoxWorld::NPC);
+    MailSender sender(WinzigWorld::NPC);
     MailDraft draft(SUBJECT, BODY);
     draft.AddItem(item);
     draft.SendMailTo(trans, MailReceiver(player), sender);
@@ -101,7 +101,7 @@ bool LootBoxItem::sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity 
     return true;
 }
 
-void LootBoxItem::openLootBox(Player *player, Item *box, enum Rarity rarity)
+void WinzigItem::openLootBox(Player *player, Item *box, enum Rarity rarity)
 {
     std::vector<int> pool;
     enum Banner banner;
@@ -111,31 +111,31 @@ void LootBoxItem::openLootBox(Player *player, Item *box, enum Rarity rarity)
             if (isPromotion(roll())) {
                 rarity = RARITY_FIVE_STAR;
                 banner = BANNER_PROMOTIONAL;
-                pool = LootBoxWorld::Promotions;
+                pool = WinzigWorld::Promotions;
                 break;
             } else if (isEpic()) {
                 rarity = RARITY_FIVE_STAR;
                 banner = BANNER_NONE;
-                pool = LootBoxWorld::FiveStars;
+                pool = WinzigWorld::FiveStars;
                 break;
             }
         case RARITY_FOUR_STAR:
             if (isFeatured(roll())) {
                 rarity = RARITY_FOUR_STAR;
                 banner = BANNER_FEATURED;
-                pool = LootBoxWorld::Features;
+                pool = WinzigWorld::Features;
                 break;
             } else if (isRare()) {
                 rarity = RARITY_FOUR_STAR;
                 banner = BANNER_NONE;
-                pool = LootBoxWorld::FourStars;
+                pool = WinzigWorld::FourStars;
                 break;
             }
         case RARITY_THREE_STAR:
             if (isCommon()) {
                 rarity = RARITY_THREE_STAR;
                 banner = BANNER_NONE;
-                pool = LootBoxWorld::ThreeStars;
+                pool = WinzigWorld::ThreeStars;
                 break;
             }
         default:
@@ -169,12 +169,12 @@ void LootBoxItem::openLootBox(Player *player, Item *box, enum Rarity rarity)
     player->DestroyItemCount(box, count, true);
 }
 
-bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*targets*/)
+bool WinzigItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*targets*/)
 {
-    if (!LootBoxWorld::Enabled)
+    if (!WinzigWorld::Enabled)
         return false;
 
-    if ((uint32)LootBoxWorld::Box != box->GetEntry())
+    if ((uint32)WinzigWorld::Box != box->GetEntry())
         return false;
 
     QueryResult rows = CharacterDatabase.Query(
@@ -216,17 +216,17 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
     }
 
     float result = roll();
-    if (result <= LootBoxWorld::FiveStarRate) {
+    if (result <= WinzigWorld::FiveStarRate) {
         openLootBox(player, box, RARITY_FIVE_STAR);
         return true;
     }
 
-    float rare = (1 - LootBoxWorld::FourStarRate) / LootBoxWorld::FourStarGuarantee * std::min(pity.rare, LootBoxWorld::FourStarGuarantee) + LootBoxWorld::FourStarRate;
+    float rare = (1 - WinzigWorld::FourStarRate) / WinzigWorld::FourStarGuarantee * std::min(pity.rare, WinzigWorld::FourStarGuarantee) + WinzigWorld::FourStarRate;
     if (result <= rare) {
-        float epic = (1 - LootBoxWorld::FiveStarRate) / LootBoxWorld::FiveStarGuarantee * std::min(pity.epic, LootBoxWorld::FiveStarGuarantee) + LootBoxWorld::FiveStarRate;
+        float epic = (1 - WinzigWorld::FiveStarRate) / WinzigWorld::FiveStarGuarantee * std::min(pity.epic, WinzigWorld::FiveStarGuarantee) + WinzigWorld::FiveStarRate;
         result = roll();
 
-        if ((result <= epic) || (pity.epic > (LootBoxWorld::FiveStarGuarantee - LootBoxWorld::FourStarGuarantee))) {
+        if ((result <= epic) || (pity.epic > (WinzigWorld::FiveStarGuarantee - WinzigWorld::FourStarGuarantee))) {
             openLootBox(player, box, RARITY_FIVE_STAR);
             return true;
         }
@@ -239,7 +239,7 @@ bool LootBoxItem::OnUse(Player *player, Item *box, SpellCastTargets const &/*tar
     return true;
 }
 
-void AddLootBoxItemScripts()
+void AddWinzigItemScripts()
 {
-    new LootBoxItem();
+    new WinzigItem();
 }

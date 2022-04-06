@@ -1,13 +1,13 @@
-#ifndef _LOOT_BOX_WORLD_H_
-#define _LOOT_BOX_WORLD_H_
+#ifndef _WINZIG_WORLD_H_
+#define _WINZIG_WORLD_H_
 
 #include <vector>
 #include "ScriptMgr.h"
 
-class LootBoxWorld : public WorldScript
+class WinzigWorld : public WorldScript
 {
 public:
-    LootBoxWorld() : WorldScript("LootBoxWorld") {}
+    WinzigWorld() : WorldScript("WinzigWorld") {}
 
     void OnBeforeConfigLoad(bool /*reload*/) override
     {
@@ -43,4 +43,4 @@ public:
     static int KillReward;
 };
 
-#endif // _LOOT_BOX_WORLD_H_
+#endif // _WINZIG_WORLD_H_

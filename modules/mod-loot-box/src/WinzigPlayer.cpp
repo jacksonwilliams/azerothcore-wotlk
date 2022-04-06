@@ -4,18 +4,18 @@
 #include "Player.h"
 #include "Config.h"
 #include "Chat.h"
-#include "LootBoxWorld.h"
+#include "WinzigWorld.h"
 #include "Group.h"
 
-class LootBoxPlayer : public PlayerScript
+class WinzigPlayer : public PlayerScript
 {
 public:
-    LootBoxPlayer() : PlayerScript("LootBoxPlayer") { }
+    WinzigPlayer() : PlayerScript("WinzigPlayer") { }
 
     void OnLogin(Player *player) override
     {
-        if (sConfigMgr->GetOption<bool>("LootBox.Enable", false))
-            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Loot Box |rmodule.");
+        if (sConfigMgr->GetOption<bool>("Winzig.Enable", false))
+            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Winzig |rmodule.");
 
         uint32 guid = player->GetGUID().GetCounter();
         QueryResult result = CharacterDatabase.Query("SELECT `logout_time` FROM `characters` WHERE guid = '{}'", guid);
@@ -30,7 +30,7 @@ public:
 
     void OnLevelChanged(Player *player, uint8 /*oldlevel*/) override
     {
-        player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
+        player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::LevelReward);
 
         if (player->GetsRecruitAFriendBonus(true)) {
             if (Group* group = player->GetGroup()) {
@@ -41,7 +41,7 @@ public:
                         continue;
 
                     if (target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId())
-                        target->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::LevelReward);
+                        target->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::LevelReward);
                 }
             }
         }
@@ -69,7 +69,7 @@ private:
             if (!players.IsEmpty()) {
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter) {
                     if (Player *player = iter->GetSource()) {
-                        player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::KillReward);
+                        player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::KillReward);
                     }
                 }
             }
@@ -79,7 +79,7 @@ private:
     void sendDailyReward(Player *player)
     {
         ChatHandler(player->GetSession()).PSendSysMessage("Daily login reward!");
-        player->AddItem(LootBoxWorld::CustomCurrency, LootBoxWorld::DailyReward);
+        player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::DailyReward);
     }
 
     time_t getReset()
@@ -94,7 +94,7 @@ private:
     }
 };
 
-void AddLootBoxPlayerScripts()
+void AddWinzigPlayerScripts()
 {
-    new LootBoxPlayer();
+    new WinzigPlayer();
 }

@@ -1,5 +1,5 @@
-#ifndef _LOOT_BOX_ITEM_H_
-#define _LOOT_BOX_ITEM_H_
+#ifndef _WINZIG_ITEM_H_
+#define _WINZIG_ITEM_H_
 
 #include <random>
 #include <vector>
@@ -25,10 +25,10 @@ enum Banner {
     BANNER_PROMOTIONAL
 };
 
-class LootBoxItem : public ItemScript
+class WinzigItem : public ItemScript
 {
 public:
-    LootBoxItem() : ItemScript("LootBoxItem"), gen(rd()), dis(0.0, 1.0) {}
+    WinzigItem() : ItemScript("WinzigItem"), gen(rd()), dis(0.0, 1.0) {}
 
     bool OnUse(Player *player, Item *item, SpellCastTargets const &/*targets*/) override;
 
@@ -43,4 +43,4 @@ private:
     bool sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity rarity, enum Banner banner);
 };
 
-#endif // _LOOT_BOX_ITEM_H_
+#endif // _WINZIG_ITEM_H_

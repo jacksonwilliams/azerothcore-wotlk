@@ -1,6 +1,6 @@
 DELETE FROM `item_template` WHERE `entry` = 5621798;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
-VALUES (5621798, 'Loot Box', 12331, 6, 250, 7931299, 1000, "I can't believe it's not gambling!", 'LootBoxItem');
+VALUES (5621798, 'Loot Box', 12331, 6, 250, 7931299, 1000, "I can't believe it's not gambling!", 'WinzigItem');
 
 UPDATE `item_template`
 SET `name` = 'Macaroon', `displayid` = 51567, `maxcount` = 2147483647, `stackable` = 2147483647, `description` = 'Time is money, friend.'

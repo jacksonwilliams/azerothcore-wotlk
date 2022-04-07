@@ -36,7 +36,7 @@ Based on [Genshin Impact](https://genshin.mihoyo.com/en/), provides a module and
 * CreatureDisplayInfoExtra.dbc: `2945699`
 
 ### Edit the module's configuration (optional)
-If you need to change the module configuration, go to your server configuration directory (where your `worldserver` or `worldserver.exe` is), copy `LootBox.conf.dist` to `LootBox.conf` and edit that new file.
+If you need to change the module configuration, go to your server configuration directory (where your `worldserver` or `worldserver.exe` is), copy `Winzig.conf.dist` to `Winzig.conf` and edit that new file.
 
 ### Credits
 * Wobbling Goblin: [repository](https://github.com/wobgob) - [website](https://wobgob.com)

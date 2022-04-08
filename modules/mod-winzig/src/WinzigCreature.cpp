@@ -93,10 +93,12 @@ private:
     {
         uint32 count = pItem->GetCount();
         ItemTemplate const *itemTemplate = pItem->GetTemplate();
-        if (itemTemplate->Class != ITEM_CLASS_TRADE_GOODS || itemTemplate->GetMaxStackSize() == 1)
+        if ((itemTemplate->Class != ITEM_CLASS_TRADE_GOODS && itemTemplate->Class != ITEM_CLASS_GEM) || itemTemplate->GetMaxStackSize() == 1)
             return;
         uint32 itemEntry = itemTemplate->ItemId;
         uint32 itemSubclass = itemTemplate->SubClass;
+        if (itemTemplate->Class == ITEM_CLASS_GEM)
+            itemSubclass = ITEM_SUBCLASS_JEWELCRAFTING;
         if (!entryToAmountMap.count(itemEntry))
         {
             // Item does not exist yet in storage
@@ -134,7 +136,6 @@ private:
                 {
                     UpdateItemCount(entryToAmountMap, entryToSubclassMap, pItem, player, INVENTORY_SLOT_BAG_0, i);
                 }
-
             }
             // Bag Items
             for (uint32 i = INVENTORY_SLOT_BAG_START; i < INVENTORY_SLOT_BAG_END; i++)

@@ -81,15 +81,6 @@ public:
         }
     }
 
-    void OnFirstLogin(Player* player) override
-    {
-        if (player->getClass() == CLASS_DEATH_KNIGHT)
-            return;
-
-        if (sConfigMgr->GetOption<bool>("Hardcore.Enable", false))
-            player->AddAura(SPELL_AURA_HARDCORE, player);
-    }
-
     void OnLevelChanged(Player* player, uint8 /*oldlevel*/) override
     {
         if (player->HasAura(SPELL_AURA_HARDCORE) || player->HasAura(SPELL_AURA_IMMORTAL)) {
@@ -270,9 +261,63 @@ public:
     }
 };
 
+class HardcoreCommand : public CommandScript
+{
+public:
+    HardcoreCommand() : CommandScript("HardcoreCommand") {}
+
+    Acore::ChatCommands::ChatCommandTable GetCommands() const
+    {
+        static Acore::ChatCommands::ChatCommandTable commands =
+        {
+            {"hardcore", HandleHardcoreCommand, SEC_PLAYER, Acore::ChatCommands::Console::No},
+        };
+
+        return commands;
+    }
+
+    static bool HandleHardcoreCommand(ChatHandler *handler)
+    {
+        Player* player = handler->GetPlayer();
+
+        if (!player)
+            return false;
+
+        if (player->getLevel() != 1) {
+            handler->PSendSysMessage("Hardcore characters must start at level 1.");
+            return true;
+        }
+
+        std::string query = "SELECT counter FROM character_achievement_progress WHERE criteria = 111 AND guid = " + std::to_string(player->GetGUID().GetCounter());
+        QueryResult result = CharacterDatabase.Query(query);
+
+        if (result) {
+            handler->PSendSysMessage("Hardcore character must not have died.");
+            return true;
+        }
+
+        player->AddAura(SPELL_AURA_HARDCORE, player);
+        handler->PSendSysMessage("Hardcore activated.");
+        handler->PSendSysMessage(
+            "Note: Wobbling Goblin is in no way responsible for your Hardcore "
+            "character. If you choose to create and play a Hardcore character, "
+            "you do so at your own risk. Wobbling Goblin is not responsible "
+            "for the death and loss of your hardcore characters for any reason "
+            "including Internet lag, bugs, Acts of God, your little sister, or "
+            "any other reason whatsoever. Consult the End User License Agreement "
+            "for more details. Wobbling Goblin will not, and does not have the "
+            "capability to restore any deceased Hardcore characters. Don't even "
+            "ask. La-la-la-la-la, we can't hear you..."
+        );
+
+        return true;
+    }
+};
+
 void AddHardcoreScripts()
 {
     new HardcorePlayer();
     new HardcoreGuild();
     new HardcoreMisc();
+    new HardcoreCommand();
 }

@@ -54,7 +54,7 @@ public:
 };
 
 static bool enabled;
-static float experienceMultiplier, goldMultiplier;
+static float experienceMultiplier, goldMultiplier, honorMultiplier;
 
 class PlayerSettingsWorldScript : public WorldScript
 {
@@ -71,6 +71,7 @@ public:
         enabled = sConfigMgr->GetOption<bool>("PlayerSettings.Enable", 1);
         experienceMultiplier = sConfigMgr->GetOption<float>("PlayerSettings.Experience", 0.1);
         goldMultiplier = sConfigMgr->GetOption<float>("PlayerSettings.Gold", 0.1);
+        honorMultiplier = sConfigMgr->GetOption<float>("PlayerSettings.Honor", 0.1);
     }
 };
 
@@ -198,15 +199,12 @@ private:
                         uint8 bossLevel = killed->getLevel();
                         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
                         uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
-                        uint32 bonusLevels = 0;
-
-                        if (nplayers > 2)
-                            bonusLevels = nplayers - 2;
 
                         if (bossLevel > gray)
                         {
-                            honor_f = ceil(Acore::Honor::hk_honor_at_level_f(playerLevel) * (bossLevel + bonusLevels - gray) / (playerLevel - gray));
+                            honor_f = ceil(Acore::Honor::hk_honor_at_level_f(playerLevel) * (bossLevel - gray) / (playerLevel - gray));
                             honor_f *= sWorld->getRate(RATE_HONOR);
+                            honor_f *= 1 + honorMultiplier * (nplayers - 1);
                             honor = int32(honor_f);
                             player->ModifyHonorPoints(honor);
                             ChatHandler(player->GetSession()).PSendSysMessage("You have been awarded %i honor.", honor);
@@ -479,9 +477,10 @@ public:
     Acore::ChatCommands::ChatCommandTable GetCommands() const
     {
         static Acore::ChatCommands::ChatCommandTable commands =
-            {
-                {"players", HandlePlayersCommand, SEC_PLAYER, Acore::ChatCommands::Console::No},
-                {"playersettings", HandlePlayerSettingsCommand, SEC_GAMEMASTER, Acore::ChatCommands::Console::No}};
+        {
+            {"players", HandlePlayersCommand, SEC_PLAYER, Acore::ChatCommands::Console::No},
+            {"playersettings", HandlePlayerSettingsCommand, SEC_PLAYER, Acore::ChatCommands::Console::No}
+        };
 
         return commands;
     }
@@ -528,7 +527,16 @@ public:
             mapInfo->veto = (uint32)n;
         }
 
-        handler->PSendSysMessage("Players set to %i.", std::max(mapInfo->nplayers, mapInfo->veto));
+        if (!players.IsEmpty())
+        {
+            for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+            {
+                if (Player *player = iter->GetSource())
+                {
+                    ChatHandler(player->GetSession()).PSendSysMessage("Players set to %i.", std::max(mapInfo->nplayers, mapInfo->veto));
+                }
+            }
+        }
 
         return true;
     }
@@ -544,8 +552,10 @@ public:
         if (!map->IsDungeon())
             return false;
 
+        handler->PSendSysMessage("Players set to %i.", std::max(mapInfo->nplayers, mapInfo->veto));
         handler->PSendSysMessage("Experience multiplier set to %.2f.", !nplayers ? 0 : (1 + experienceMultiplier * (nplayers - 1)));
         handler->PSendSysMessage("Gold multiplier set to %.2f.", !nplayers ? 0 : (1 + goldMultiplier * (nplayers - 1)));
+        handler->PSendSysMessage("Honor multiplier set to %.2f.", !nplayers ? 0 : (1 + honorMultiplier * (nplayers - 1)));
 
         Creature *target = handler->getSelectedCreature();
         if (target)

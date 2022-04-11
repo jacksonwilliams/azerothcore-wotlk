@@ -231,8 +231,15 @@ public:
 
     bool CanGuildSendBankList(Guild const* /*guild*/, WorldSession* session, uint8 /*tabId*/, bool /*sendAllSlots*/) override
     {
-        if (session->GetPlayer()->HasAura(SPELL_AURA_HARDCORE)) {
-            ChatHandler(session).PSendSysMessage("Hardcore characters cannot use guild banks.");
+        if (!session)
+            return true;
+
+        Player* player = session->GetPlayer();
+        if (!player)
+            return true;
+
+        if (player->HasAura(SPELL_AURA_HARDCORE)) {
+            ChatHandler(player->GetSession()).PSendSysMessage("Hardcore characters cannot use guild banks.");
             return false;
         }
 
@@ -247,8 +254,15 @@ public:
 
     bool CanSendAuctionHello(WorldSession const* session, ObjectGuid /*guid*/, Creature* /*creature*/) override
     {
-        if (session->GetPlayer()->HasAura(SPELL_AURA_HARDCORE)) {
-            ChatHandler((WorldSession *)session).PSendSysMessage("Hardcore characters cannot use the auction house.");
+        if (!session)
+            return true;
+
+        Player* player = session->GetPlayer();
+        if (!player)
+            return true;
+
+        if (player->HasAura(SPELL_AURA_HARDCORE)) {
+            ChatHandler(player->GetSession()).PSendSysMessage("Hardcore characters cannot use the auction house.");
             return false;
         }
 

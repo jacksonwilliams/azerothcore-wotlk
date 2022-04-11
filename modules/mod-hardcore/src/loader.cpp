@@ -1,9 +1,7 @@
-void AddHardcorePlayerScripts();
-void AddHardcoreAllMapScripts();
+void AddHardcoreScripts();
 
 void Addmod_hardcoreScripts()
 {
-    AddHardcorePlayerScripts();
-    AddHardcoreAllMapScripts();
+    AddHardcoreScripts();
 }
 

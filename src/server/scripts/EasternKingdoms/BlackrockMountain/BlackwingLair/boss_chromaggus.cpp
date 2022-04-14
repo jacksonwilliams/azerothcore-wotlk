@@ -215,6 +215,11 @@ public:
             events.ScheduleEvent(EVENT_FRENZY, 15000);
         }
 
+        bool CanAIAttack(Unit const* victim) const override
+        {
+            return !victim->HasAura(SPELL_TIMELAPSE);
+        }
+
         void UpdateAI(uint32 diff) override
         {
             if (!UpdateVictim())
@@ -338,7 +343,7 @@ class go_chromaggus_lever : public GameObjectScript
                             _instance->HandleGameObject(ObjectGuid::Empty, true, go);
                     }
 
-                    me->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
+                    me->SetGameObjectFlag(GO_FLAG_NOT_SELECTABLE | GO_FLAG_IN_USE);
                     me->SetGoState(GO_STATE_ACTIVE);
                 }
 

@@ -29,15 +29,21 @@ const float Offence25M = 1 / 18.5f, Defence25M = 1 / 6.5f;
 // 40 man: 4 tank, 28 dps, 8 healer = 30.0 offensive units and 10.0 defensive units.
 const float Offence40M = 1 / 30.0f, Defence40M = 1 / 10.0f;
 
+enum Spells
+{
+    SPELL_LUCIFRON_CURSE = 19703,
+    SPELL_GEHENNAS_CURSE = 19716,
+    SPELL_IGNITE_MANA = 19659,
+    SPELL_SHAZZRAH_CURSE = 19713
+};
+
 class PlayerSettingsCreatureInfo : public DataMap::Base
 {
 public:
     PlayerSettingsCreatureInfo() {}
-    PlayerSettingsCreatureInfo(uint32 count, float dmg, float hpRate) : nplayers(count), DamageMultiplier(dmg), HealthMultiplier(hpRate) {}
     uint32 nplayers = 0;
     // This is used to detect creatures that update their entry.
     uint32 entry = 0;
-    float DamageMultiplier = 1;
     float HealthMultiplier = 1;
 };
 
@@ -96,9 +102,9 @@ public:
             {
                 uint32 maxPlayers = ((InstanceMap *)sMapMgr->FindMap(map->GetId(), map->GetInstanceId()))->GetMaxPlayers();
                 PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
-                uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
+                uint32 nplayers = std::min(5u, std::max(mapInfo->nplayers, mapInfo->veto));
 
-                amount = amount * 2 * nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
+                amount = amount * 2 * mapInfo->nplayers / maxPlayers * (1 + experienceMultiplier * (nplayers - 1));
             }
         }
     }
@@ -111,9 +117,8 @@ public:
         {
             uint32 maxPlayers = ((InstanceMap *)sMapMgr->FindMap(map->GetId(), map->GetInstanceId()))->GetMaxPlayers();
             PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
-            uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
 
-            amount = amount * nplayers / maxPlayers * (1 + goldMultiplier * (nplayers - 1));
+            amount = amount * mapInfo->nplayers / maxPlayers * (1 + goldMultiplier * (mapInfo->nplayers - 1));
         }
     }
 
@@ -176,6 +181,29 @@ public:
         }
     }
 
+    void OnPlayerLeaveCombat(Player* player) override
+    {
+        Aura* lucifron = player->GetAura(SPELL_LUCIFRON_CURSE);
+        
+        if (lucifron)
+            player->RemoveAura(lucifron);
+
+        Aura* gehennas = player->GetAura(SPELL_GEHENNAS_CURSE);
+
+        if (gehennas)
+            player->RemoveAura(gehennas);
+
+        Aura* ignite = player->GetAura(SPELL_IGNITE_MANA);
+
+        if (ignite)
+            player->RemoveAura(ignite);
+
+        Aura* shazzrah = player->GetAura(SPELL_SHAZZRAH_CURSE);
+
+        if (shazzrah)
+            player->RemoveAura(shazzrah);
+    }
+
 private:
     void RewardHonor(Player *killer, Creature *killed)
     {
@@ -198,7 +226,7 @@ private:
                         uint8 gray = Acore::XP::GetGrayLevel(playerLevel);
                         uint8 bossLevel = killed->getLevel();
                         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
-                        uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
+                        uint32 nplayers = std::min(5u, std::max(mapInfo->nplayers, mapInfo->veto));
 
                         if (bossLevel > gray)
                         {
@@ -246,24 +274,98 @@ class PlayerSettingsUnitScript : public UnitScript
 public:
     PlayerSettingsUnitScript() : UnitScript("PlayerSettingsUnitScript", true) {}
 
-    void ModifyPeriodicDamageAurasTick(Unit *target, Unit *attacker, uint32 &damage) override
+    void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage) override
     {
-        damage = modify(target, attacker, damage);
+        if (!target || !target->GetMap())
+            return;
+
+        if (!attacker || !attacker->GetMap())
+            return;
+
+        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
+            return;
+
+        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+            return;
+
+        if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
+            return;
+
+        damage = modify(target, damage);
     }
 
-    void ModifySpellDamageTaken(Unit *target, Unit *attacker, int32 &damage) override
+    void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage) override
     {
-        damage = modify(target, attacker, damage);
+        if (!target || !target->GetMap())
+            return;
+
+        if (!attacker || !attacker->GetMap())
+            return;
+
+        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
+            return;
+
+        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+            return;
+
+        if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
+            return;
+
+        damage = modify(target, damage);
     }
 
-    void ModifyMeleeDamage(Unit *target, Unit *attacker, uint32 &damage) override
+    void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage) override
     {
-        damage = modify(target, attacker, damage);
+        if (!target || !target->GetMap())
+            return;
+
+        if (!attacker || !attacker->GetMap())
+            return;
+
+        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
+            return;
+
+        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+            return;
+
+        if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
+            return;
+
+        damage = modify(target, damage);
     }
 
-    void ModifyHealRecieved(Unit *target, Unit *attacker, uint32 &damage) override
+    void ModifyPeriodicHealthAurasTick(Unit* target, Unit* healer, uint32& gain) override
     {
-        damage = modify(target, attacker, damage);
+        if (!target || !target->GetMap())
+            return;
+
+        if (!healer || !healer->GetMap())
+            return;
+
+        if (!inDungeon(target, healer) || inBattleground(target, healer))
+            return;
+
+        if (target->GetTypeId() == TYPEID_PLAYER || healer->GetTypeId() == TYPEID_PLAYER)
+            return;
+
+        gain = modify(target, gain);
+    }
+
+    void ModifyHealRecieved(Unit* target, Unit* healer, uint32& gain) override
+    {
+        if (!target || !target->GetMap())
+            return;
+
+        if (!healer || !healer->GetMap())
+            return;
+
+        if (!inDungeon(target, healer) || inBattleground(target, healer))
+            return;
+
+        if (target->GetTypeId() == TYPEID_PLAYER || healer->GetTypeId() == TYPEID_PLAYER)
+            return;
+
+        gain = modify(target, gain);
     }
 
 private:
@@ -277,23 +379,42 @@ private:
         return target->GetMap()->IsBattleground() && attacker->GetMap()->IsBattleground();
     }
 
-    uint32 modify(Unit *target, Unit *attacker, uint32 damage)
+    uint32 modify(Unit *target, uint32 amount)
     {
-        if (!enabled)
-            return damage;
+        PlayerSettingsMapInfo *mapInfo = target->GetMap()->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+        InstanceMap *instanceMap = ((InstanceMap *)sMapMgr->FindMap(target->GetMapId(), target->GetInstanceId()));
 
-        if (!attacker || attacker->GetTypeId() == TYPEID_PLAYER || !attacker->IsInWorld())
-            return damage;
+        if (!instanceMap)
+            return amount;
 
-        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
-            return damage;
+        uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
+        uint32 maxPlayers = instanceMap->GetMaxPlayers();
 
-        if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
-            return damage;
+        float defence = 1.0f;
 
-        float damageMultiplier = attacker->CustomData.GetDefault<PlayerSettingsCreatureInfo>("PlayerSettingsCreatureInfo")->DamageMultiplier;
+        switch (maxPlayers)
+        {
+        case 5:
+            defence = Defence5M;
+            break;
+        case 10:
+            defence = Defence10M;
+            break;
+        case 20:
+            defence = Defence20M;
+        case 25:
+            defence = Defence25M;
+            break;
+        case 40:
+            defence = Defence40M;
+            break;
+        default:
+            break;
+        }
 
-        return damage * damageMultiplier;
+        float multiplier = defence + (1 - defence) / (maxPlayers - 1) * (nplayers - 1);
+
+        return amount * multiplier;
     }
 };
 
@@ -307,11 +428,11 @@ public:
         if (!enabled)
             return;
 
-        if (player->IsGameMaster())
-            return;
-
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
         mapInfo->nplayers = map->GetPlayersCountExceptGMs();
+
+        if (mapInfo->nplayers == 0)
+            mapInfo->nplayers = 1;
 
         if (mapInfo->veto == 0)
             mapInfo->veto = mapInfo->nplayers;
@@ -421,36 +542,28 @@ public:
         uint32 maxPlayers = instanceMap->GetMaxPlayers();
 
         float offence = 1.0f;
-        float defence = 1.0f;
-        if (instanceMap->IsRaid())
+
+        switch (instanceMap->GetMaxPlayers())
         {
-            switch (instanceMap->GetMaxPlayers())
-            {
-            case 10:
-                offence = Offence10M;
-                defence = Defence10M;
-                break;
-            case 20:
-                offence = Offence20M;
-                defence = Defence20M;
-            case 25:
-                offence = Offence25M;
-                defence = Defence25M;
-                break;
-            default:
-                offence = Offence40M;
-                defence = Defence40M;
-                break;
-            }
-        }
-        else
-        {
+        case 5:
             offence = Offence5M;
-            defence = Defence5M;
+            break;
+        case 10:
+            offence = Offence10M;
+            break;
+        case 20:
+            offence = Offence20M;
+        case 25:
+            offence = Offence25M;
+            break;
+        case 40:
+            offence = Offence40M;
+            break;
+        default:
+            break;
         }
 
         creatureInfo->HealthMultiplier = offence + (1 - offence) / (maxPlayers - 1) * (nplayers - 1);
-        creatureInfo->DamageMultiplier = defence + (1 - defence) / (maxPlayers - 1) * (nplayers - 1);
 
         scaledHealth = round(((float)baseHealth * creatureInfo->HealthMultiplier) + 1.0f);
 
@@ -546,25 +659,64 @@ public:
 
         Player *player = handler->getSelectedPlayerOrSelf();
         Map *map = player->GetMap();
-        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
-        uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
+
+        if (!map)
+            return false;
 
         if (!map->IsDungeon())
             return false;
 
-        handler->PSendSysMessage("Players set to %i.", std::max(mapInfo->nplayers, mapInfo->veto));
+        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+
+        if (!mapInfo)
+            return false;
+
+        InstanceMap *instanceMap = ((InstanceMap *)sMapMgr->FindMap(player->GetMapId(), player->GetInstanceId()));
+
+        if (!instanceMap)
+            return false;
+
+        uint32 maxPlayers = instanceMap->GetMaxPlayers();
+
+        float offence = 1.0f;
+        float defence = 1.0f;
+
+        switch (instanceMap->GetMaxPlayers())
+        {
+        case 5:
+            offence = Offence5M;
+            defence = Defence5M;
+            break;
+        case 10:
+            offence = Offence10M;
+            defence = Defence10M;
+            break;
+        case 20:
+            offence = Offence20M;
+            defence = Defence20M;
+        case 25:
+            offence = Offence25M;
+            defence = Defence25M;
+            break;
+        case 40:
+            offence = Offence40M;
+            defence = Defence40M;
+            break;
+        default:
+            break;
+        }
+
+        uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
+
+        handler->PSendSysMessage("Players set to %i.", nplayers);
+        handler->PSendSysMessage("Health multiplier set to %.2f.", offence + (1 - offence) / (maxPlayers - 1) * (nplayers - 1));
+        handler->PSendSysMessage("Damage multiplier set to %.2f.", defence + (1 - defence) / (maxPlayers - 1) * (nplayers - 1));
+
+        nplayers = std::min(5u, std::max(mapInfo->nplayers, mapInfo->veto));
+
         handler->PSendSysMessage("Experience multiplier set to %.2f.", !nplayers ? 0 : (1 + experienceMultiplier * (nplayers - 1)));
         handler->PSendSysMessage("Gold multiplier set to %.2f.", !nplayers ? 0 : (1 + goldMultiplier * (nplayers - 1)));
         handler->PSendSysMessage("Honor multiplier set to %.2f.", !nplayers ? 0 : (1 + honorMultiplier * (nplayers - 1)));
-
-        Creature *target = handler->getSelectedCreature();
-        if (target)
-        {
-            PlayerSettingsCreatureInfo *creatureInfo = target->CustomData.GetDefault<PlayerSettingsCreatureInfo>("PlayerSettingsCreatureInfo");
-
-            handler->PSendSysMessage("Health multiplier set to %.2f.", creatureInfo->HealthMultiplier);
-            handler->PSendSysMessage("Damage multiplier set to %.2f.", creatureInfo->DamageMultiplier);
-        }
 
         return true;
     }

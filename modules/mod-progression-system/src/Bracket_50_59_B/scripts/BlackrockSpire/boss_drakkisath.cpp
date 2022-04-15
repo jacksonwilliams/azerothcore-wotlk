@@ -89,14 +89,7 @@ public:
                         events.ScheduleEvent(EVENT_CLEAVE, 8000);
                         break;
                     case EVENT_CONFLAGRATION:
-                        DoCastVictim(SPELL_CONFLAGRATION);
-
-                        if (Unit* target = me->GetVictim())
-                        {
-                            _conflagrateTarget = me->GetVictim()->GetGUID();
-                            _conflagrateThreat = me->getThreatMgr().getThreat(me->GetVictim());
-                            me->getThreatMgr().modifyThreatPercent(target, -100);
-                        }
+                        DoCastRandomTarget(SPELL_CONFLAGRATION, 1, 30.0f, true, false);
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 18000);
                         events.ScheduleEvent(EVENT_CHECK_CONFLAGRATION_TARGET, 10000);
                         break;

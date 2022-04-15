@@ -181,8 +181,6 @@ public:
             {
                 events.SetPhase(PHASE_NONE);
                 me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
-                me->SetFaction(FACTION_MAJORDOMO_FRIENDLY);
             }
         }
 
@@ -283,7 +281,6 @@ public:
                     events.CancelEventGroup(PHASE_COMBAT);
                     me->GetMap()->UpdateEncounterState(ENCOUNTER_CREDIT_KILL_CREATURE, me->GetEntry(), me);
                     me->SetUnitFlag(UNIT_FLAG_IMMUNE_TO_PC|UNIT_FLAG_IMMUNE_TO_NPC);
-                    me->SetFaction(FACTION_MAJORDOMO_FRIENDLY);
                     EnterEvadeMode();
                     Talk(SAY_DEFEAT);
                     return;
@@ -505,6 +502,7 @@ public:
             if (events.IsInPhase(PHASE_DEFEAT_OUTRO) && spellInfo->Id == SPELL_TELEPORT_SELF)
             {
                 me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
+                me->SetFaction(FACTION_MAJORDOMO_FRIENDLY);
                 me->SetHomePosition(MajordomoRagnaros);
                 me->NearTeleportTo(MajordomoRagnaros.GetPositionX(), MajordomoRagnaros.GetPositionY(), MajordomoRagnaros.GetPositionZ(), MajordomoRagnaros.GetOrientation());
                 events.SetPhase(PHASE_NONE);

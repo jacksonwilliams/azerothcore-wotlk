@@ -30,7 +30,21 @@ public:
 
     void OnLevelChanged(Player *player, uint8 /*oldlevel*/) override
     {
-        player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::LevelReward);
+        uint32 amount = 0;
+        uint8 level = player->getLevel();
+
+        if (level <= 19)
+            amount = 5;
+        else if (level <= 29)
+            amount = 15;
+        else if (level <= 44)
+            amount = 20;
+        else if (level <= 54)
+            amount = 25;
+        else if (level <= 60)
+            amount = 50;
+
+        player->AddItem(WinzigWorld::CustomCurrency, amount);
 
         if (player->GetsRecruitAFriendBonus(true)) {
             if (Group* group = player->GetGroup()) {
@@ -41,7 +55,7 @@ public:
                         continue;
 
                     if (target->GetSession()->GetAccountId() == player->GetSession()->GetRecruiterId())
-                        target->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::LevelReward);
+                        target->AddItem(WinzigWorld::CustomCurrency, amount);
                 }
             }
         }
@@ -49,18 +63,65 @@ public:
 
     void OnCreatureKill(Player *killer, Creature *killed) override
     {
-        if (killed && killed->IsDungeonBoss())
-            giveCurrency(killer);
+        if (!killed)
+            return;
+
+        if (killed->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_BOSS_MOB) {
+            giveCurrency(killer, 50);
+            return;
+        }
+
+        if (killed->IsDungeonBoss())
+            giveCurrency(killer, 15);
     }
 
     void OnCreatureKilledByPet(Player* owner, Creature* killed) override
     {
-        if (killed && killed->IsDungeonBoss())
-            giveCurrency(owner);
+        if (!killed)
+            return;
+
+        if (killed->GetCreatureTemplate()->type_flags & CREATURE_TYPE_FLAG_BOSS_MOB) {
+            giveCurrency(owner, 50);
+            return;
+        }
+
+        if (killed->IsDungeonBoss())
+            giveCurrency(owner, 15);
     }
 
+    void OnPlayerCompleteQuest(Player* player, Quest const* quest) override
+    {
+        switch (quest->GetQuestId()) {
+        case 24881:
+        case 24882:
+        case 24883:
+        case 24884:
+        case 24885:
+        case 24886:
+        case 24888:
+        case 24922:
+        case 24790:
+        case 24788:
+            player->AddItem(WinzigWorld::CustomCurrency, 200);
+            return;
+        case 24889:
+        case 24890:
+        case 24891:
+        case 24892:
+        case 24893:
+        case 24894:
+        case 24896:
+        case 24923:
+        case 24791:
+        case 24789:
+            player->AddItem(WinzigWorld::CustomCurrency, 100);
+            return;
+        }
+    }
+
+
 private:
-    void giveCurrency(Player *killer)
+    void giveCurrency(Player *killer, uint32 amount)
     {
         Map *map = killer->GetMap();
         if (map->GetEntry()->IsDungeon()) {
@@ -69,7 +130,7 @@ private:
             if (!players.IsEmpty()) {
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter) {
                     if (Player *player = iter->GetSource()) {
-                        player->AddItem(WinzigWorld::CustomCurrency, WinzigWorld::KillReward);
+                        player->AddItem(WinzigWorld::CustomCurrency, amount);
                     }
                 }
             }

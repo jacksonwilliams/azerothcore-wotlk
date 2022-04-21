@@ -4,6 +4,8 @@
 
 #include "ProgressionSystem.h"
 
+void AddSC_quest_jail_break_60_2();
+void AddSC_quest_the_masquerade_60_2();
 void AddSC_instance_molten_core_60_1_A();
 
 void AddBracket_60_1_A_Scripts()
@@ -11,5 +13,7 @@ void AddBracket_60_1_A_Scripts()
     if (!(sConfigMgr->GetOption<int>("ProgressionSystem.Brackets", 0) & PROGRESSION_BRACKET_60_TIER_1_A))
         return;
 
+    AddSC_quest_jail_break_60_2();
+    AddSC_quest_the_masquerade_60_2();
     AddSC_instance_molten_core_60_1_A();
 }

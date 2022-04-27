@@ -19,6 +19,7 @@
 #include "ScriptMgr.h"
 #include "ScriptedCreature.h"
 #include "SpellInfo.h"
+#include "Position.h"
 #include "onyxias_lair.h"
 
 enum Spells
@@ -95,15 +96,17 @@ struct sOnyxMove
 static sOnyxMove OnyxiaMoveData[] =
 {
     {0, 0, 0, -64.496f, -214.906f, -84.4f, 0.0f}, // south ground
-    {1, 5, SPELL_BREATH_S_TO_N, -64.496f, -214.906f, -60.0f, 0.0f}, // south
-    {2, 6, SPELL_BREATH_SW_TO_NE, -59.809f, -190.758f, -60.0f, 7 * M_PI / 4}, // south-west
-    {3, 7, SPELL_BREATH_W_TO_E, -29.450f, -180.600f, -60.0f, M_PI + M_PI / 2}, // west
-    {4, 8, SPELL_BREATH_NW_TO_SE, 6.895f, -180.246f, -60.0f, M_PI + M_PI / 4}, // north-west
-    {5, 1, SPELL_BREATH_N_TO_S,  22.876f, -217.152f, -60.0f, M_PI}, // north
-    {6, 2, SPELL_BREATH_NE_TO_SW, 10.2191f, -247.912f, -60.0f, 3 * M_PI / 4}, // north-east
-    {7, 3, SPELL_BREATH_E_TO_W, -31.496f, -250.123f, -60.0f, M_PI / 2}, // east
-    {8, 4, SPELL_BREATH_SE_TO_NW, -63.5156f, -240.096f, -60.0f, M_PI / 4}, // south-east
+    {1, 5, SPELL_BREATH_S_TO_N, -65.8444f, -213.809f, -65.2985f, 0.0f}, // south
+    {2, 6, SPELL_BREATH_SW_TO_NE, -58.2509f, -189.020f, -65.790f, 7 * M_PI / 4}, // south-west
+    {3, 7, SPELL_BREATH_W_TO_E, -33.5561f, -182.682f, -65.9457f, M_PI + M_PI / 2}, // west
+    {4, 8, SPELL_BREATH_NW_TO_SE, 6.8951f, -180.246f, -65.896f, M_PI + M_PI / 4}, // north-west
+    {5, 1, SPELL_BREATH_N_TO_S,  22.8763f, -217.152f, -65.0548f, M_PI}, // north
+    {6, 2, SPELL_BREATH_NE_TO_SW, 10.2191f, -247.912f, -65.896f, 3 * M_PI / 4}, // north-east
+    {7, 3, SPELL_BREATH_E_TO_W, -31.4963f, -250.123f, -65.1278f, M_PI / 2}, // east
+    {8, 4, SPELL_BREATH_SE_TO_NW, -63.5156f, -240.096f, -65.477f, M_PI / 4}, // south-east
 };
+
+static Position Home = Position(0, -214.906f, -84.4f);
 
 enum Yells
 {
@@ -133,6 +136,7 @@ public:
         void Initialize()
         {
             CurrentWP            = 0;
+            airPhaseTimer        = 180000;
             whelpSpam            = false;
             whelpCount           = 0;
             whelpSpamTimer       = 0;
@@ -205,7 +209,7 @@ public:
             {
                 SetPhase(PHASE_AIRPHASE);
             }
-            else if (me->HealthBelowPctDamaged(40, damage) && Phase == PHASE_AIRPHASE)
+            else if ((me->HealthBelowPctDamaged(40, damage) || airPhaseTimer <= 0) && Phase == PHASE_AIRPHASE)
             {
                 SetPhase(PHASE_LANDED);
             }
@@ -298,6 +302,12 @@ public:
 
         void UpdateAI(uint32 diff) override
         {
+            if (me->GetPosition().GetExactDist(Home) > 100.0f)
+            {
+                me->AI()->EnterEvadeMode();
+                return;
+            }
+
             if (!UpdateVictim())
             {
                 return;
@@ -305,6 +315,9 @@ public:
 
             events.Update(diff);
             HandleWhelpSpam(diff);
+
+            if (Phase == PHASE_AIRPHASE)
+                airPhaseTimer -= diff;
 
             if (me->HasUnitState(UNIT_STATE_CASTING))
             {
@@ -530,6 +543,7 @@ public:
     private:
         uint8 Phase;
         int8  CurrentWP;
+        int32 airPhaseTimer;
 
         bool  whelpSpam;
         uint8 whelpCount;

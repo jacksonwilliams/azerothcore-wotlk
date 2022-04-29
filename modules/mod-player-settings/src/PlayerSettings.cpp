@@ -390,13 +390,10 @@ private:
         uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
         uint32 maxPlayers = instanceMap->GetMaxPlayers();
 
-        float defence = 1.0f;
+        float defence = Defence5M;
 
         switch (maxPlayers)
         {
-        case 5:
-            defence = Defence5M;
-            break;
         case 10:
             defence = Defence10M;
             break;
@@ -541,13 +538,10 @@ public:
         uint32 nplayers = creatureInfo->nplayers;
         uint32 maxPlayers = instanceMap->GetMaxPlayers();
 
-        float offence = 1.0f;
+        float offence = Offence5M;
 
         switch (instanceMap->GetMaxPlayers())
         {
-        case 5:
-            offence = Offence5M;
-            break;
         case 10:
             offence = Offence10M;
             break;
@@ -678,15 +672,11 @@ public:
 
         uint32 maxPlayers = instanceMap->GetMaxPlayers();
 
-        float offence = 1.0f;
-        float defence = 1.0f;
+        float offence = Offence5M;
+        float defence = Defence5M;
 
         switch (instanceMap->GetMaxPlayers())
         {
-        case 5:
-            offence = Offence5M;
-            defence = Defence5M;
-            break;
         case 10:
             offence = Offence10M;
             defence = Defence10M;

@@ -86,12 +86,6 @@ class PlayerSettingsPlayerScript : public PlayerScript
 public:
     PlayerSettingsPlayerScript() : PlayerScript("PlayerSettingsPlayer") {}
 
-    void OnLogin(Player *player) override
-    {
-        if (enabled)
-            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Player Settings |rmodule.");
-    }
-
     void OnGiveXP(Player *player, uint32 &amount, Unit *victim) override
     {
         if (victim)

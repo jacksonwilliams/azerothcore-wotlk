@@ -13,19 +13,12 @@ const std::string SUBJECT = "Level up reward";
 const std::string BODY =
     "Congratulations on hitting a milestone level!\n\n"
     "Please take your reward and enjoy.\n\n"
-    "- WinZig";
+    "- Winzig";
 
 class LevelUpPlayer : public PlayerScript
 {
 public:
-    LevelUpPlayer() : PlayerScript("LevelUp") { }
-
-    void OnLogin(Player* player) override
-    {
-        if (sConfigMgr->GetOption<bool>("LevelUp.Enable", false)) {
-            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Level Up |rmodule.");
-        }
-    }
+    LevelUpPlayer() : PlayerScript("LevelUpPlayer") { }
 
     void OnLevelChanged(Player* player, uint8 /*oldLevel*/) override
     {

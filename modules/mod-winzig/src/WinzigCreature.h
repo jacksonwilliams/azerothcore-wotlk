@@ -24,5 +24,21 @@ enum GossipItemType : uint8
     VENDOR = 18
 };
 
+class npc_winzig : public CreatureScript
+{
+public:
+    npc_winzig() : CreatureScript("npc_winzig") { }
+
+    bool OnGossipHello(Player* player, Creature* creature) override;
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 item_subclass, uint32 gossipPageNumber) override;
+
+    static std::string GetItemLink(uint32 entry, WorldSession* session);
+    static std::string GetItemIcon(uint32 entry, uint32 width, uint32 height, int x, int y);
+    static void ShowReagentItems(Player* player, Creature* creature, uint32 item_subclass, uint16 gossipPageNumber);
+    static void ShowReagentItems(Player* player, Item* item, uint32 item_subclass, uint16 gossipPageNumber);
+    static void WithdrawItem(Player* player, uint32 entry);
+    static void UpdateItemCount(std::map<uint32, uint32>& entryToAmountMap, std::map<uint32, uint32>& entryToSubclassMap, Item* pItem, Player* player, uint32 bagSlot, uint32 itemSlot);
+    static void DepositAllReagents(Player* player);
+};
 
 #endif // _WINZIG_CREATURE_H_

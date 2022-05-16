@@ -4,6 +4,8 @@
 #include "Player.h"
 #include "Config.h"
 #include "Chat.h"
+#include "WinzigCreature.h"
+#include "WinzigItem.h"
 #include "WinzigWorld.h"
 #include "Group.h"
 
@@ -14,8 +16,7 @@ public:
 
     void OnLogin(Player *player) override
     {
-        if (sConfigMgr->GetOption<bool>("Winzig.Enable", false))
-            ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Winzig |rmodule.");
+        linkBannerItems(player);
 
         uint32 guid = player->GetGUID().GetCounter();
         QueryResult result = CharacterDatabase.Query("SELECT `logout_time` FROM `characters` WHERE guid = '{}'", guid);
@@ -152,6 +153,59 @@ private:
         local.tm_hour = 0;
         time_t reset = mktime(&local);
         return reset;
+    }
+
+    void linkBannerItems(Player* player)
+    {
+        auto months = std::chrono::duration_cast<Months>(std::chrono::system_clock::now().time_since_epoch()).count();
+        uint8 season = (months % 9) + 1;
+        uint8 box = 0;
+        uint8 level = player->getLevel();
+        std::vector<uint32> boxes = { 0, WinzigWorld::StarterBox, WinzigWorld::ClassicBox, WinzigWorld::BurntBox, WinzigWorld::FrozenBox };
+
+        QueryResult rows = WorldDatabase.Query(
+            "SELECT `item`, `box` FROM `item_loot_box` WHERE `season` = {} AND `box` IN (1, 2, 3)",
+            season, box
+        );
+
+        if (!rows)
+            return;
+
+        std::map<uint8, std::vector<uint32>> entries;
+
+        do {
+            Field* row = rows->Fetch();
+            uint32 entry = row[0].Get<uint32>();
+            uint8 box = row[1].Get<uint8>();
+
+            if (box == BOX_CLASSIC || (box == BOX_BURNT && level > 60) || (box == BOX_FROZEN && level > 70))
+                entries[box].push_back(entry);
+        } while (rows->NextRow());
+
+        for (int box = BOX_CLASSIC; box <= BOX_FROZEN; box++) {
+            std::stringstream ss;
+            bool first = true;
+            std::vector<uint32>::const_iterator entry;
+
+            for (entry = entries[box].begin(); entry != entries[box].end(); entry++) {
+                if (first)
+                    first = false;
+                else if (std::next(entry) == entries[box].end())
+                    ss << ", and ";
+                else
+                    ss << ", ";
+
+                std::string link = npc_winzig::GetItemLink(*entry, player->GetSession());
+                ss << link;
+            }
+
+            if (box == BOX_CLASSIC || (box == BOX_BURNT && level > 60) || (box == BOX_FROZEN && level > 70)) {
+                std::string link = npc_winzig::GetItemLink(boxes[box], player->GetSession());
+                std::string links = ss.str();
+
+                ChatHandler(player->GetSession()).PSendSysMessage("%s features %s.", link, links.c_str());
+            }
+        }
     }
 };
 

@@ -77,52 +77,52 @@ Winzig.FourStarGuarantee = 10
 Winzig.NPC = 5126979
 
 #
-#    Winzig.Box
-#        Description: The item ID of the loot box.
+#    Winzig.StarterBox
+#        Description: The item ID of the starter loot box.
 #        Default:     5621798
 #
 
-Winzig.Box = 5621798
+Winzig.StarterBox = 5621798
 
 #
-#    Winzig.Promotions
-#        Description: The item IDs of the promotional event items.
-#        Default:     "45037"
+#    Winzig.ClassicBox
+#        Description: The item ID of the classic loot box.
+#        Default:     5621799
 #
 
-Winzig.Promotions = "45037"
+Winzig.ClassicBox = 5621799
 
 #
-#    Winzig.Features
-#        Description: The item IDs of the featured event items.
-#        Default:     "19160,33223,32588"
+#    Winzig.BurntBox
+#        Description: The item ID of the burnt loot box.
+#        Default:     5621800
 #
 
-Winzig.Features = "19160,33223,32588"
+Winzig.BurntBox = 5621800
 
 #
-#    Winzig.FiveStars
-#        Description: The item IDs of the standard epic items.
-#        Default:     ""
+#    Winzig.FrozenBox
+#        Description: The item ID of the frozen loot box.
+#        Default:     5621801
 #
 
-Winzig.FiveStars = ""
+Winzig.FrozenBox = 5621801
 
 #
-#    Winzig.FourStars
-#        Description: The item IDs of the standard rare items.
-#        Default:     ""
+#    Winzig.ReagentPouch
+#        Description: The item ID of the reagent pouch.
+#        Default:     2251094
 #
 
-Winzig.FourStars = ""
+Winzig.ReagentPouch = 2251094
 
 #
-#    Winzig.ThreeStar
-#        Description: The item IDs of the common items.
-#        Default:     "46779,38577"
+#    Winzig.Season
+#        Description: The current season of featured and promotional loot box items.
+#        Default:     0 - No season
 #
 
-Winzig.ThreeStars = "46779,38577"
+Winzig.Season = 0
 
 #
 #    Winzig.CustomCurrency

@@ -28,14 +28,14 @@ public:
     static int FeaturedGuarantee;
     static int FourStarGuarantee;
 
-    static int Box;
-    static int NPC;
+    static uint32 StarterBox;
+    static uint32 ClassicBox;
+    static uint32 BurntBox;
+    static uint32 FrozenBox;
+    static uint32 ReagentPouch;
+    static uint32 NPC;
 
-    static std::vector<int> Promotions;
-    static std::vector<int> Features;
-    static std::vector<int> FiveStars;
-    static std::vector<int> FourStars;
-    static std::vector<int> ThreeStars;
+    static int8 Season;
 
     static int CustomCurrency;
     static int DailyReward;

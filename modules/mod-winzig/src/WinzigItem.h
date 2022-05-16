@@ -25,10 +25,18 @@ enum Banner {
     BANNER_PROMOTIONAL
 };
 
-class WinzigItem : public ItemScript
+enum Box {
+    BOX_NONE,
+    BOX_STARTER,
+    BOX_CLASSIC,
+    BOX_BURNT,
+    BOX_FROZEN
+};
+
+class item_loot_box : public ItemScript
 {
 public:
-    WinzigItem() : ItemScript("WinzigItem"), gen(rd()), dis(0.0, 1.0) {}
+    item_loot_box() : ItemScript("item_loot_box"), gen(rd()), dis(0.0, 1.0) {}
 
     bool OnUse(Player *player, Item *item, SpellCastTargets const &/*targets*/) override;
 
@@ -38,9 +46,18 @@ private:
     std::uniform_real_distribution<> dis;
 
     float roll();
-    int randomId(std::vector<int> ids);
-    void openLootBox(Player *player, Item *item, enum Rarity rarity);
+    uint32 randomId(std::vector<uint32> ids);
+    void openLootBox(Player *player, Item *item, enum Box box, enum Rarity rarity);
     bool sendRewardToPlayer(Player *player, uint32 itemId, enum Rarity rarity, enum Banner banner);
+};
+
+class item_reagent_pouch : public ItemScript
+{
+public:
+    item_reagent_pouch() : ItemScript("item_reagent_pouch") {}
+
+    bool OnUse(Player* player, Item* item, SpellCastTargets const& /*targets*/) override;
+    void OnGossipSelect(Player* player, Item* /*item*/, uint32 /*sender*/, uint32 action) override;
 };
 
 #endif // _WINZIG_ITEM_H_

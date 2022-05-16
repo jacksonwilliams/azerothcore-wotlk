@@ -33,8 +33,6 @@ public:
         if (!sConfigMgr->GetOption<bool>("Hardcore.Enable", false))
             return;
 
-        ChatHandler(player->GetSession()).SendSysMessage("This server is running the |cff4CFF00Hardcore |rmodule.");
-
         if (player->getLevel() >= sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL)) {
             Aura* hardcore = player->GetAura(SPELL_AURA_HARDCORE);
             

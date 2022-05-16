@@ -13,31 +13,17 @@ int WinzigWorld::FiveStarGuarantee;
 int WinzigWorld::FeaturedGuarantee;
 int WinzigWorld::FourStarGuarantee;
 
-int WinzigWorld::NPC;
-int WinzigWorld::Box;
-
-std::vector<int> WinzigWorld::Promotions;
-std::vector<int> WinzigWorld::Features;
-std::vector<int> WinzigWorld::FiveStars;
-std::vector<int> WinzigWorld::FourStars;
-std::vector<int> WinzigWorld::ThreeStars;
+uint32 WinzigWorld::NPC;
+uint32 WinzigWorld::StarterBox;
+uint32 WinzigWorld::ClassicBox;
+uint32 WinzigWorld::BurntBox;
+uint32 WinzigWorld::FrozenBox;
+uint32 WinzigWorld::ReagentPouch;
 
 int WinzigWorld::CustomCurrency;
 int WinzigWorld::DailyReward;
 int WinzigWorld::LevelReward;
 int WinzigWorld::KillReward;
-
-void loadItems(std::vector<int> &items, std::string ids)
-{
-    std::stringstream ss(ids);
-
-    for (int i; ss >> i;) {
-        items.push_back(i);
-
-        if (ss.peek() == ',')
-            ss.ignore();
-    }
-}
 
 void WinzigWorld::SetInitialWorldSettings()
 {
@@ -53,14 +39,12 @@ void WinzigWorld::SetInitialWorldSettings()
     FeaturedGuarantee = sConfigMgr->GetOption<int>("Winzig.FeaturedGuarantee", 2);
     FourStarGuarantee = sConfigMgr->GetOption<int>("Winzig.FourStarGuarantee", 10);
 
-    NPC = sConfigMgr->GetOption<int>("Winzig.NPC", 17249);
-    Box = sConfigMgr->GetOption<int>("Winzig.Box", 5621798);
-
-    loadItems(Promotions, sConfigMgr->GetOption<std::string>("Winzig.Promotions", ""));
-    loadItems(Features, sConfigMgr->GetOption<std::string>("Winzig.Features", ""));
-    loadItems(FiveStars, sConfigMgr->GetOption<std::string>("Winzig.FiveStars", ""));
-    loadItems(FourStars, sConfigMgr->GetOption<std::string>("Winzig.FourStars", ""));
-    loadItems(ThreeStars, sConfigMgr->GetOption<std::string>("Winzig.ThreeStars", ""));
+    NPC = sConfigMgr->GetOption<uint32>("Winzig.NPC", 17249);
+    StarterBox = sConfigMgr->GetOption<uint32>("Winzig.StarterBox", 5621798);
+    ClassicBox = sConfigMgr->GetOption<uint32>("Winzig.ClassicBox", 5621799);
+    BurntBox = sConfigMgr->GetOption<uint32>("Winzig.BurntBox", 5621800);
+    FrozenBox = sConfigMgr->GetOption<uint32>("Winzig.FrozenBox", 5621801);
+    ReagentPouch = sConfigMgr->GetOption<uint32>("Winzig.ReagentPouch", 2251094);
 
     CustomCurrency = sConfigMgr->GetOption<int>("Winzig.CustomCurrency", 37711);
     DailyReward = sConfigMgr->GetOption<int>("Winzig.DailyReward", 90);

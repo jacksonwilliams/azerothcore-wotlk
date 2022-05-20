@@ -62,7 +62,6 @@ public:
 
         void Reset() override
         {
-            me->RemoveAurasDueToSpell(SPELL_MARK_OF_FROST_AURA);
             _scheduler.CancelAll();
             me->SetNpcFlag(UNIT_NPC_FLAG_GOSSIP);
             me->RestoreFaction();
@@ -71,7 +70,6 @@ public:
                     if (p->GetZoneId() == me->GetZoneId())
                     {
 
-                        p->RemoveAurasDueToSpell(SPELL_MARK_OF_FROST);
                         p->RemoveAurasDueToSpell(SPELL_AURA_OF_FROST);
                         p->RemoveAurasDueToSpell(SPELL_CHILL);
                         p->RemoveAurasDueToSpell(SPELL_FROST_BREATH);
@@ -193,7 +191,7 @@ class spell_arcane_vacuum : public SpellScript
         Unit* hitUnit = GetHitUnit();
         if (caster && hitUnit && hitUnit->ToPlayer())
         {
-            caster->getThreatMgr().modifyThreatPercent(hitUnit, -100);
+            caster->GetThreatMgr().modifyThreatPercent(hitUnit, -100);
             caster->CastSpell(hitUnit, SPELL_ARCANE_VACUUM_TP, true);
         }
     }

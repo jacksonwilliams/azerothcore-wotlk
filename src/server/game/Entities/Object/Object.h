@@ -65,6 +65,12 @@ enum NotifyFlags
     NOTIFY_ALL                      = 0xFF
 };
 
+enum GOSummonType
+{
+    GO_SUMMON_TIMED_OR_CORPSE_DESPAWN = 0,    // despawns after a specified time OR when the summoner dies
+    GO_SUMMON_TIMED_DESPAWN = 1     // despawns after a specified time
+};
+
 class WorldPacket;
 class UpdateData;
 class ByteBuffer;
@@ -343,14 +349,14 @@ public:
         m_flags = 0;
     }
 
-    [[nodiscard]] T_FLAGS  GetFlags() const { return m_flags; }
-    [[nodiscard]] bool     HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
-    void     AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
-    void     DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
+    [[nodiscard]] T_FLAGS GetFlags() const { return m_flags; }
+    [[nodiscard]] bool HasFlag(FLAG_TYPE flag) const { return m_flags & (1 << flag); }
+    void AddFlag(FLAG_TYPE flag) { m_flags |= (1 << flag); }
+    void DelFlag(FLAG_TYPE flag) { m_flags &= ~(1 << flag); }
 
     [[nodiscard]] T_VALUES GetValue(FLAG_TYPE flag) const { return m_values[flag]; }
-    void     SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
-    void     AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
+    void SetValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] = value; }
+    void AddValue(FLAG_TYPE flag, T_VALUES value) { m_values[flag] += value; }
 
 private:
     T_VALUES m_values[ARRAY_SIZE];
@@ -516,7 +522,7 @@ public:
 
     TempSummon* SummonCreature(uint32 id, const Position& pos, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, uint32 vehId = 0, SummonPropertiesEntry const* properties = nullptr) const;
     TempSummon* SummonCreature(uint32 id, float x, float y, float z, float ang = 0, TempSummonType spwtype = TEMPSUMMON_MANUAL_DESPAWN, uint32 despwtime = 0, SummonPropertiesEntry const* properties = nullptr);
-    GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, bool checkTransport = true);
+    GameObject* SummonGameObject(uint32 entry, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 respawnTime, bool checkTransport = true, GOSummonType summonType = GO_SUMMON_TIMED_OR_CORPSE_DESPAWN);
     Creature*   SummonTrigger(float x, float y, float z, float ang, uint32 dur, bool setLevel = false, CreatureAI * (*GetAI)(Creature*) = nullptr);
     void SummonCreatureGroup(uint8 group, std::list<TempSummon*>* list = nullptr);
 

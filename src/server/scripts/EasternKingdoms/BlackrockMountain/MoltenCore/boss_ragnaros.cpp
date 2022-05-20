@@ -263,9 +263,9 @@ public:
             }
         }
 
-        void EnterEvadeMode() override
+        void EnterEvadeMode(EvadeReason why) override
         {
-            if (!me->getThreatMgr().getThreatList().empty())
+            if (!me->GetThreatMgr().getThreatList().empty())
             {
                 if (!_processingMagmaBurst)
                 {
@@ -276,7 +276,7 @@ public:
             }
             else
             {
-                BossAI::EnterEvadeMode();
+                BossAI::EnterEvadeMode(why);
             }
         }
 

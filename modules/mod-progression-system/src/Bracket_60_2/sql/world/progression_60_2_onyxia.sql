@@ -1,8 +1,15 @@
 -- Onyxia
+<<<<<<< HEAD
 UPDATE `creature_template` SET `minlevel` = 63, `maxlevel` = 63, `lootid` = 54003, `DamageModifier` = 13, `HealthModifier` = 200 WHERE `entry` = 10184;
 
 -- Trash mobs
 UPDATE `creature_template` SET `minlevel` = 60, `maxlevel` = 60, `lootid` = 0, `skinloot` = 0, HealthModifier = 15 WHERE `entry` IN (11262, 12129);
+=======
+UPDATE `creature_template` SET `minlevel` = 63, `maxlevel` = 63, `lootid` = 54003, `DamageModifier` = 13 WHERE `entry` = 10184;
+
+-- Trash mobs
+UPDATE `creature_template` SET `minlevel` = 60, `maxlevel` = 60, `lootid` = 0, `skinloot` = 0 WHERE `entry` IN (11262, 12129);
+>>>>>>> azerothcore/main
 
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (54000, 54001);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES
@@ -55,7 +62,11 @@ UPDATE `dungeon_access_template` SET `min_level` = 60 WHERE `map_id` = 249 AND `
 
 DELETE FROM `mapdifficulty_dbc` WHERE `MapID` = 249;
 INSERT INTO `mapdifficulty_dbc` (`ID`, `MapID`, `Difficulty`, `RaidDuration`, `MaxPlayers`, `Difficultystring`) VALUES
+<<<<<<< HEAD
 (26, 249, 0, 259200, 40, 'RAID_DIFFICULTY_40PLAYER');
+=======
+(26, 249, 0, 604800, 25, 'RAID_DIFFICULTY_25PLAYER');
+>>>>>>> azerothcore/main
 
 UPDATE `achievement_criteria_data` SET `value1` = 0 WHERE `criteria_id` IN (12567, 12568, 12569);
 

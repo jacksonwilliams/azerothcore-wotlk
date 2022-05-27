@@ -464,7 +464,7 @@ public:
                             events.ScheduleEvent(EVENT_SILENCE, urand(14000, 23000));
                             break;
                         case EVENT_MIND_CONTROL:
-                            DoCastRandomTarget(SPELL_SHADOW_COMMAND, 0, 40.0f);
+                            DoCastRandomTarget(SPELL_SHADOW_COMMAND, 1, 40.0f);
                             events.ScheduleEvent(EVENT_MIND_CONTROL, urand(24000, 30000));
                             break;
                         case EVENT_SHADOWBLINK:

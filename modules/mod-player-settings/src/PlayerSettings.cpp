@@ -279,7 +279,7 @@ public:
         if (!inDungeon(target, attacker) || inBattleground(target, attacker))
             return;
 
-        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+        if (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->GetCharmerGUID() && attacker->GetGUID() != target->GetGUID())
             return;
 
         if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
@@ -299,7 +299,7 @@ public:
         if (!inDungeon(target, attacker) || inBattleground(target, attacker))
             return;
 
-        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+        if (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->GetCharmerGUID() && attacker->GetGUID() != target->GetGUID())
             return;
 
         if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())
@@ -319,7 +319,7 @@ public:
         if (!inDungeon(target, attacker) || inBattleground(target, attacker))
             return;
 
-        if (attacker->GetTypeId() == TYPEID_PLAYER && attacker->GetGUID() != target->GetGUID())
+        if (attacker->GetTypeId() == TYPEID_PLAYER && !attacker->GetCharmerGUID() && attacker->GetGUID() != target->GetGUID())
             return;
 
         if ((attacker->IsHunterPet() || attacker->IsPet() || attacker->IsSummon()) && attacker->IsControlledByPlayer())

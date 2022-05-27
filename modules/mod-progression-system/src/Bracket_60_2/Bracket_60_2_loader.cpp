@@ -10,9 +10,6 @@ void AddSC_boss_lord_kazzak_60_2();
 
 void AddBracket_60_2_Scripts()
 {
-    if (!(sConfigMgr->GetOption<int>("ProgressionSystem.Brackets", 0) & PROGRESSION_BRACKET_60_TIER_2))
-        return;
-
     AddSC_boss_onyxia_60_2();
     AddSC_instance_onyxias_lair_60_2();
     AddSC_boss_lord_kazzak_60_2();

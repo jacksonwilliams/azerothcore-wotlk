@@ -2,7 +2,8 @@
 UPDATE `creature_template` SET `minlevel` = 63, `maxlevel` = 63, `lootid` = 54003, `DamageModifier` = 13, `HealthModifier` = 200 WHERE `entry` = 10184;
 
 -- Trash mobs
-UPDATE `creature_template` SET `minlevel` = 60, `maxlevel` = 60, `lootid` = 0, `skinloot` = 0, HealthModifier = 15 WHERE `entry` IN (11262, 12129);
+UPDATE `creature_template` SET `minlevel` = 56, `maxlevel` = 57, `lootid` = 0, `skinloot` = 0, HealthModifier = 1 WHERE `entry` IN (11262);
+UPDATE `creature_template` SET `minlevel` = 60, `maxlevel` = 60, `lootid` = 0, `skinloot` = 0, HealthModifier = 15 WHERE `entry` IN (12129);
 
 DELETE FROM `reference_loot_template` WHERE `Entry` IN (54000, 54001);
 INSERT INTO `reference_loot_template` (`Entry`, `Item`, `Reference`, `Chance`, `QuestRequired`, `LootMode`, `GroupId`, `MinCount`, `MaxCount`, `Comment`) VALUES

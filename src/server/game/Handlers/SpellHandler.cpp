@@ -596,7 +596,7 @@ void WorldSession::HandleCancelChanneling(WorldPacket& recvData)
     if (mover != _player && mover->GetTypeId() == TYPEID_PLAYER)
         return;
 
-    mover->InterruptSpell(CURRENT_CHANNELED_SPELL, true, true, true);
+    mover->InterruptSpell(CURRENT_CHANNELED_SPELL);
 }
 
 void WorldSession::HandleTotemDestroyed(WorldPackets::Totem::TotemDestroyed& totemDestroyed)

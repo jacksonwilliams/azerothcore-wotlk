@@ -419,6 +419,9 @@ public:
         if (!enabled)
             return;
 
+        if (player->IsGameMaster())
+            return;
+
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
         mapInfo->nplayers = map->GetPlayersCountExceptGMs();
 
@@ -430,16 +433,12 @@ public:
 
         if (map->GetEntry()->IsDungeon() && player)
         {
-            Map::PlayerList const &playerList = map->GetPlayers();
+            Map::PlayerList const &players = map->GetPlayers();
 
-            if (!playerList.IsEmpty() && mapInfo->nplayers > 1)
-            {
-                for (Map::PlayerList::const_iterator iter = playerList.begin(); iter != playerList.end(); ++iter)
-                {
+            if (mapInfo->nplayers > 1)
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
                     if (Player *handle = iter->GetSource())
                         ChatHandler(handle->GetSession()).PSendSysMessage("%s has entered the instance. The minions of hell grow stronger.", player->GetName().c_str());
-                }
-            }
         }
     }
 
@@ -455,19 +454,15 @@ public:
 
         if (map->GetEntry() && map->GetEntry()->IsDungeon())
         {
-            bool PlayerSettingsCheck = false;
-            Map::PlayerList const &playerList = map->GetPlayers();
+            bool check = false;
+            Map::PlayerList const &players = map->GetPlayers();
 
-            for (Map::PlayerList::const_iterator iter = playerList.begin(); iter != playerList.end(); ++iter)
-            {
+            for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
                 if (Player *player = iter->GetSource())
-                {
                     if (player->IsInCombat())
-                        PlayerSettingsCheck = true;
-                }
-            }
+                        check = true;
 
-            if (!PlayerSettingsCheck)
+            if (!check)
                 mapInfo->nplayers = map->GetPlayersCountExceptGMs() - 1;
         }
 
@@ -475,14 +470,10 @@ public:
         {
             Map::PlayerList const &players = map->GetPlayers();
 
-            if (!players.IsEmpty() && mapInfo->nplayers > 0)
-            {
+            if (mapInfo->nplayers > 0)
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-                {
-                    if (Player *playerHandle = iter->GetSource())
-                        ChatHandler(playerHandle->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
-                }
-            }
+                    if (Player *handle = iter->GetSource())
+                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
         }
     }
 };

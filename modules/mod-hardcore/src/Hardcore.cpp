@@ -4,6 +4,7 @@
 #include "ScriptMgr.h"
 #include "DataMap.h"
 #include "Group.h"
+#include "DBUpdater.h"
 
 #define SPELL_AURA_HARDCORE     3758285
 #define SPELL_AURA_IMMORTAL     3758286
@@ -312,10 +313,42 @@ public:
     }
 };
 
+class HardcoreDatabase : public DatabaseScript
+{
+public:
+    HardcoreDatabase() : DatabaseScript("HardcoreDatabase") {}
+
+    std::string path = "/modules/mod-hardcore/sql/";
+    void OnAfterDatabasesLoaded(uint32 updateFlags) override
+    {
+        if (DBUpdater<LoginDatabaseConnection>::IsEnabled(updateFlags))
+        {
+            std::vector<std::string> directories;
+            directories.push_back(path + "auth");
+            DBUpdater<LoginDatabaseConnection>::Update(LoginDatabase, &directories);
+        }
+
+        if (DBUpdater<CharacterDatabaseConnection>::IsEnabled(updateFlags))
+        {
+            std::vector<std::string> directories;
+            directories.push_back(path + "characters");
+            DBUpdater<CharacterDatabaseConnection>::Update(CharacterDatabase, &directories);
+        }
+
+        if (DBUpdater<WorldDatabaseConnection>::IsEnabled(updateFlags))
+        {
+            std::vector<std::string> directories;
+            directories.push_back(path + "world");
+            DBUpdater<WorldDatabaseConnection>::Update(WorldDatabase, &directories);
+        }
+    }
+};
+
 void AddHardcoreScripts()
 {
     new HardcorePlayer();
     new HardcoreGuild();
     new HardcoreMisc();
     new HardcoreCommand();
+    new HardcoreDatabase();
 }

@@ -25,10 +25,10 @@ inline std::vector<std::string> GetDatabaseDirectories(std::string const& folder
     return directories;
 }
 
-class ProgressionSystemLoadingDBUpdates : public DatabaseScript
+class ProgressionSystemDatabase : public DatabaseScript
 {
 public:
-    ProgressionSystemLoadingDBUpdates() : DatabaseScript("ProgressionSystemLoadingDBUpdates") {}
+    ProgressionSystemDatabase() : DatabaseScript("ProgressionSystemDatabase") {}
 
     void OnAfterDatabasesLoaded(uint32 updateFlags) override
     {
@@ -65,6 +65,6 @@ void AddProgressionSystemScripts()
 {
     if (sConfigMgr->GetOption<bool>("ProgressionSystem.LoadDatabase", true))
     {
-        new ProgressionSystemLoadingDBUpdates();
+        new ProgressionSystemDatabase();
     }
 }

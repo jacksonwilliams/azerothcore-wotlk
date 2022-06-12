@@ -3,6 +3,7 @@ void AddWinzigItemScripts();
 void AddWinzigWorldScripts();
 void AddWinzigCommandScripts();
 void AddWinzigCreatureScripts();
+void AddWinzigDatabaseScripts();
 
 void Addmod_winzigScripts()
 {
@@ -11,4 +12,5 @@ void Addmod_winzigScripts()
     AddWinzigItemScripts();
     AddWinzigCommandScripts();
     AddWinzigCreatureScripts();
+    AddWinzigDatabaseScripts();
 }

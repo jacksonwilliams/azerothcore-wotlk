@@ -1,6 +1,6 @@
-void AddColonistPlayerScripts();
+void AddColonistScripts();
 
 void Addmod_colonistScripts()
 {
-    AddColonistPlayerScripts();
+    AddColonistScripts();
 }

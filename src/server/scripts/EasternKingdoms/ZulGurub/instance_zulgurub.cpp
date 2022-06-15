@@ -36,7 +36,12 @@ ObjectData const creatureData[] =
 {
     { NPC_HIGH_PRIEST_THEKAL, DATA_THEKAL  },
     { NPC_ZEALOT_LORKHAN,     DATA_LORKHAN },
+<<<<<<< HEAD
     { NPC_ZEALOT_ZATH,        DATA_ZATH    }
+=======
+    { NPC_ZEALOT_ZATH,        DATA_ZATH    },
+    { NPC_PRIESTESS_MARLI,    DATA_MARLI   }
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
 };
 
 class instance_zulgurub : public InstanceMapScript
@@ -49,6 +54,7 @@ public:
         instance_zulgurub_InstanceMapScript(Map* map) : InstanceScript(map)
         {
             SetBossNumber(EncounterCount);
+            LoadObjectData(creatureData, nullptr);
             LoadDoorData(doorData);
             LoadObjectData(creatureData, nullptr);
         }
@@ -71,7 +77,20 @@ public:
                 case NPC_HAKKAR:
                     _hakkarGUID = creature->GetGUID();
                     break;
+                case NPC_SPAWN_OF_MARLI:
+                    if (Creature* marli = GetCreature(DATA_MARLI))
+                    {
+                        marli->AI()->JustSummoned(creature);
+                    }
+                    break;
+                case NPC_GAHZRANKA:
+                    _gahzrankaGUID = creature->GetGUID();
+                    break;
+                default:
+                    break;
             }
+
+            InstanceScript::OnCreatureCreate(creature);
         }
 
         void OnGameObjectCreate(GameObject* go) override
@@ -107,6 +126,16 @@ public:
             }
 
             return ObjectGuid::Empty;
+        }
+
+        uint32 GetData(uint32 type) const override
+        {
+            if (type == DATA_GAHZRANKA)
+            {
+                return _gahzrankaGUID || GetBossState(DATA_GAHZRANKA) == DONE;
+            }
+
+            return 0;
         }
 
         std::string GetSaveData() override
@@ -160,6 +189,7 @@ public:
         ObjectGuid _arlokkGUID;
         ObjectGuid _goGongOfBethekkGUID;
         ObjectGuid _hakkarGUID;
+        ObjectGuid _gahzrankaGUID;
     };
 
     InstanceScript* GetInstanceScript(InstanceMap* map) const override

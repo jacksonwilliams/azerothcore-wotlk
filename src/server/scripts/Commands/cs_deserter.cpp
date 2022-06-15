@@ -79,7 +79,8 @@ public:
     * selected player, with the provided duration in seconds.
     *
     * @param handler The ChatHandler, passed by the system.
-    * @param time The provided duration in seconds.
+    * @param playerName Player by name. Optional, defaults to selected or self.
+    * @param time The provided duration as TimeString. Optional, defaults to bg/instance default time.
     * @param isInstance provided by the relaying functions, so we don't have
     * to write that much code :)
     *
@@ -87,11 +88,12 @@ public:
     *
     * Example Usage:
     * @code
-    * .deserter instance add 3600 (one hour)
+    * .deserter instance add 1h30m
     * -or-
-    * .deserter bg add 3600 (one hour)
+    * .deserter bg add 1h30m
     * @endcode
     */
+<<<<<<< HEAD
     static bool HandleDeserterAdd(ChatHandler* handler, Optional<PlayerIdentifier> player, uint32 time, bool isInstance)
     {
         if (!player)
@@ -100,22 +102,71 @@ public:
         }
 
         if (!player)
+=======
+    static bool HandleDeserterAdd(ChatHandler* handler, Optional<std::string> playerName, Optional<std::string> time, bool isInstance)
+    {
+        Player* target = handler->getSelectedPlayerOrSelf();
+        ObjectGuid guid;
+
+        if (playerName)
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
         {
-            handler->SendSysMessage(LANG_NO_CHAR_SELECTED);
-            handler->SetSentErrorMessage(true);
-            return false;
+            if (!normalizePlayerName(*playerName))
+            {
+                handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+
+            guid = sCharacterCache->GetCharacterGuidByName(*playerName);
+            if (guid)
+            {
+                target = ObjectAccessor::FindPlayerByName(*playerName);
+            }
+            else
+            {
+                if (time)
+                {
+                    handler->SendSysMessage(LANG_PLAYER_NOT_FOUND);
+                    handler->SetSentErrorMessage(true);
+                    return false;
+                }
+
+                time = playerName;
+                playerName = "";
+            }
+        }
+
+        if (!playerName || playerName->empty())
+        {
+            if (!handler->GetSession())
+            {
+                return false;
+            }
+
+            playerName = target->GetName();
+            guid = target->GetGUID();
         }
 
         if (!time)
         {
-            handler->SendSysMessage(LANG_BAD_VALUE);
-            handler->SetSentErrorMessage(true);
-            return false;
+            time = isInstance ? "30m" : "15m";
         }
 
+<<<<<<< HEAD
         Player* target = player->GetConnectedPlayer();
 
         if (target)
+=======
+        int32 duration = TimeStringToSecs(*time);
+
+        if (duration == 0)
+        {
+            duration = Acore::StringTo<int32>(*time).value_or(0);
+        }
+
+        if (duration == 0)
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
         {
             Aura* aura = target->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, target);
 
@@ -130,10 +181,52 @@ public:
             return true;
         }
 
+<<<<<<< HEAD
         uint8 index = 0;
         CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
         stmt->SetData(index++, player->GetGUID().GetCounter());
         stmt->SetData(index++, player->GetGUID().GetCounter());
+=======
+        if (target)
+        {
+            Aura* aura = target->GetAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER);
+            if (aura && aura->GetDuration() >= duration * IN_MILLISECONDS)
+            {
+                handler->PSendSysMessage("Player %s already has a longer %s Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
+                return true;
+            }
+
+            aura = target->AddAura(isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER, target);
+            if (!aura)
+            {
+                handler->SendSysMessage(LANG_BAD_VALUE);
+                handler->SetSentErrorMessage(true);
+                return false;
+            }
+            aura->SetDuration(duration * IN_MILLISECONDS);
+
+            return true;
+        }
+
+        int32 remainTime = 0;
+        if (QueryResult result = CharacterDatabase.Query("SELECT remainTime FROM character_aura WHERE guid = {} AND spell = {}", guid.GetCounter(), isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER))
+        {
+            Field* fields = result->Fetch();
+            remainTime = fields[0].Get<int32>();
+
+            if (remainTime < 0 || remainTime >= duration * IN_MILLISECONDS)
+            {
+                handler->PSendSysMessage("Player %s already has a longer %s Deserter active.", handler->playerLink(*playerName), isInstance ? "Instance" : "Battleground");
+                return true;
+            }
+            CharacterDatabase.Query("DELETE FROM character_aura WHERE guid = {} AND spell = {}", guid.GetCounter(), isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER);
+        }
+
+        uint8 index = 0;
+        CharacterDatabasePreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_INS_AURA);
+        stmt->SetData(index++, guid.GetCounter());
+        stmt->SetData(index++, guid.GetCounter());
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
         stmt->SetData(index++, 0);
         stmt->SetData(index++, isInstance ? LFG_SPELL_DUNGEON_DESERTER : BG_SPELL_DESERTER);
         stmt->SetData(index++, 1);
@@ -146,7 +239,11 @@ public:
         stmt->SetData(index++, 0);
         stmt->SetData(index++, 0);
         stmt->SetData(index++, isInstance ? 1800000 : 900000);
+<<<<<<< HEAD
         stmt->SetData(index++, time * 1000);
+=======
+        stmt->SetData(index++, duration * 1000);
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
         stmt->SetData(index, 0);
         CharacterDatabase.Execute(stmt);
 
@@ -220,6 +317,7 @@ public:
     }
 
     /// @sa HandleDeserterAdd()
+<<<<<<< HEAD
     static bool HandleDeserterInstanceAdd(ChatHandler* handler, Optional<PlayerIdentifier> player, uint32 time)
     {
         return HandleDeserterAdd(handler, player, time, true);
@@ -229,6 +327,17 @@ public:
     static bool HandleDeserterBGAdd(ChatHandler* handler, Optional<PlayerIdentifier> player, uint32 time)
     {
         return HandleDeserterAdd(handler, player, time, false);
+=======
+    static bool HandleDeserterInstanceAdd(ChatHandler* handler, Optional<std::string> playerName, Optional<std::string> time)
+    {
+        return HandleDeserterAdd(handler, playerName, time, true);
+    }
+
+    /// @sa HandleDeserterAdd()
+    static bool HandleDeserterBGAdd(ChatHandler* handler, Optional<std::string> playerName, Optional<std::string> time)
+    {
+        return HandleDeserterAdd(handler, playerName, time, false);
+>>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
     }
 
     /// @sa HandleDeserterRemove()

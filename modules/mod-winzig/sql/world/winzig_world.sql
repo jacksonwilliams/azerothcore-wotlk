@@ -1,22 +1,22 @@
 DELETE FROM `item_template` WHERE `entry` = 2251094;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `BuyPrice`, `maxcount`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `duration`, `ScriptName`, `flagsCustom`)
-VALUES (2251094, 'Reagent Pouch', 34798, 6, 900000, 1, 1, 7808044, 1000, 'This bag has an interior space considerably larger than its outside dimensions.', 2592000, 'item_reagent_pouch', 1);
+VALUES (2251094, 'Reagent Pouch', 34798, 6, 900000, 1, 1, 18282, 0, 'This bag has an interior space considerably larger than its outside dimensions.', 2592000, 'item_reagent_pouch', 1);
 
 DELETE FROM `item_template` WHERE `entry` = 5621798;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
-VALUES (5621798, 'Starter Loot Box', 12331, 6, 250, 7931299, 1000, 'Just a taste of the real thing.', 'item_loot_box');
+VALUES (5621798, 'Starter Loot Box', 12331, 6, 250, 18282, 0, 'Just a taste of the real thing.', 'item_loot_box');
 
 DELETE FROM `item_template` WHERE `entry` = 5621799;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
-VALUES (5621799, 'Loot Box', 12644, 6, 250, 7931302, 1000, "I can't believe it's not gambling!", 'item_loot_box');
+VALUES (5621799, 'Classic Loot Box', 12644, 6, 250, 18282, 0, "I can't believe it's not gambling!", 'item_loot_box');
 
 DELETE FROM `item_template` WHERE `entry` = 5621800;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `RequiredLevel`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
-VALUES (5621800, 'Burnt Loot Box', 12332, 6, 61, 250, 7931303, 1000, "I can't believe it's not gambling!", 'item_loot_box');
+VALUES (5621800, 'Burnt Loot Box', 12332, 6, 61, 250, 18282, 0, "I can't believe it's not gambling!", 'item_loot_box');
 
 DELETE FROM `item_template` WHERE `entry` = 5621801;
 INSERT INTO `item_template` (`entry`, `name`, `displayid`, `Quality`, `RequiredLevel`, `stackable`, `spellid_1`, `spellcooldown_1`, `description`, `ScriptName`)
-VALUES (5621801, 'Frozen Loot Box', 16028, 6, 71, 250, 7931304, 1000, "I can't believe it's not gambling!", 'item_loot_box');
+VALUES (5621801, 'Frozen Loot Box', 16028, 6, 71, 250, 18282, 0, "I can't believe it's not gambling!", 'item_loot_box');
 
 CREATE TABLE IF NOT EXISTS `item_loot_box` (
     `id` SERIAL PRIMARY KEY,

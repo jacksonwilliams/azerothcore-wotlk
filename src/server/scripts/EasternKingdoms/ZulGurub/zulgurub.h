@@ -59,17 +59,15 @@ enum CreatureIds
     NPC_MANDOKIR            = 11382, // Mandokir Event
     NPC_OHGAN               = 14988, // Mandokir Event
     NPC_VILEBRANCH_SPEAKER  = 11391, // Mandokir Event
-<<<<<<< HEAD
-    NPC_CHAINED_SPIRT       = 15117,  // Mandokir Event
-    NPC_HAKKAR              = 14834,
-    NPC_ZULGURUB_TIGER      = 11361
-=======
     NPC_CHAINED_SPIRIT      = 15117, // Mandokir Event
     NPC_HAKKAR              = 14834,
     NPC_ZULGURUB_TIGER      = 11361,
     NPC_BRAIN_WASH_TOTEM    = 15112,
-    NPC_GAHZRANKA           = 15114
->>>>>>> 6ffb8aae6eaf46b7b9124564dfb8226baad61342
+    NPC_GAHZRANKA           = 15114,
+    NPC_GRILEK              = 15082,
+    NPC_HAZZARAH            = 15083,
+    NPC_RENATAKI            = 15084,
+    NPC_WUSHOOLAY           = 15085
 };
 
 enum GameobjectIds

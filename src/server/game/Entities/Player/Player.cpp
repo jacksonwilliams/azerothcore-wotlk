@@ -2643,12 +2643,13 @@ void Player::InitStatsForLevel(bool reapplyMods)
 
     // cleanup unit flags (will be re-applied if need at aura load).
     RemoveFlag(UNIT_FIELD_FLAGS,
-               UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE | UNIT_FLAG_NOT_ATTACKABLE_1 |
-               UNIT_FLAG_IMMUNE_TO_PC | UNIT_FLAG_IMMUNE_TO_NPC  | UNIT_FLAG_LOOTING          |
-               UNIT_FLAG_PET_IN_COMBAT  | UNIT_FLAG_SILENCED     | UNIT_FLAG_PACIFIED         |
-               UNIT_FLAG_STUNNED        | UNIT_FLAG_IN_COMBAT    | UNIT_FLAG_DISARMED         |
-               UNIT_FLAG_CONFUSED       | UNIT_FLAG_FLEEING      | UNIT_FLAG_NOT_SELECTABLE   |
-               UNIT_FLAG_SKINNABLE      | UNIT_FLAG_MOUNT        | UNIT_FLAG_TAXI_FLIGHT      );
+               UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_DISABLE_MOVE  | UNIT_FLAG_NOT_ATTACKABLE_1 |
+               UNIT_FLAG_LOOTING        | UNIT_FLAG_PET_IN_COMBAT | UNIT_FLAG_SILENCED         |
+               UNIT_FLAG_PACIFIED       | UNIT_FLAG_STUNNED       | UNIT_FLAG_IN_COMBAT        |
+               UNIT_FLAG_DISARMED       | UNIT_FLAG_CONFUSED      | UNIT_FLAG_FLEEING          |
+               UNIT_FLAG_NOT_SELECTABLE | UNIT_FLAG_SKINNABLE     | UNIT_FLAG_MOUNT            |
+               UNIT_FLAG_TAXI_FLIGHT);
+    SetImmuneToAll(false);
     SetUnitFlag(UNIT_FLAG_PLAYER_CONTROLLED);   // must be set
 
     SetUnitFlag2(UNIT_FLAG2_REGENERATE_POWER);// must be set
@@ -6499,14 +6500,6 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
                 statType = ssd->StatMod[i];
                 val = (ssv->getssdMultiplier(ScalingStatValue) * ssd->Modifier[i]) / 10000;
             }
-            else
-            {
-                if (i >= proto->StatsCount)
-                    continue;
-
-                // OnCustomScalingStatValue(Player* player, ItemTemplate const* proto, uint32& statType, int32& val, uint8 itemProtoStatNumber, uint32 ScalingStatValue, ScalingStatValuesEntry const* ssv)
-                sScriptMgr->OnCustomScalingStatValue(this, proto, statType, val, i, ScalingStatValue, ssv);
-            }
         }
         else
         {
@@ -6516,6 +6509,10 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
             statType = proto->ItemStat[i].ItemStatType;
             val = proto->ItemStat[i].ItemStatValue;
         }
+
+        // OnCustomScalingStatValue(Player* player, ItemTemplate const* proto, uint32& statType, int32& val, uint8 itemProtoStatNumber, uint32 ScalingStatValue, ScalingStatValuesEntry const* ssv)
+        if (CustomScalingStatValue)
+            sScriptMgr->OnCustomScalingStatValue(this, proto, statType, val, i, ScalingStatValue, ssv);
 
         if (val == 0)
             continue;
@@ -6685,7 +6682,7 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
     else if (armor && proto->ArmorDamageModifier)
         armor -= uint32(proto->ArmorDamageModifier);
 
-    if (armor)
+    if (armor && !CustomScalingStatValue)
     {
         UnitModifierType modType = TOTAL_VALUE;
         if (proto->Class == ITEM_CLASS_ARMOR)
@@ -6704,62 +6701,65 @@ void Player::_ApplyItemBonuses(ItemTemplate const* proto, uint8 slot, bool apply
         HandleStatModifier(UNIT_MOD_ARMOR, modType, float(armor), apply);
     }
 
-    // Add armor bonus from ArmorDamageModifier if > 0
-    if (proto->ArmorDamageModifier > 0 && sScriptMgr->CanArmorDamageModifier(this))
-        HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->ArmorDamageModifier), apply);
-
-    if (proto->Block)
-        HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(proto->Block), apply);
-
-    if (proto->HolyRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(proto->HolyRes), apply);
-
-    if (proto->FireRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(proto->FireRes), apply);
-
-    if (proto->NatureRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(proto->NatureRes), apply);
-
-    if (proto->FrostRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(proto->FrostRes), apply);
-
-    if (proto->ShadowRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(proto->ShadowRes), apply);
-
-    if (proto->ArcaneRes)
-        HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(proto->ArcaneRes), apply);
-
-    WeaponAttackType attType = BASE_ATTACK;
-
-    if (slot == EQUIPMENT_SLOT_RANGED && (
-                proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
-                proto->InventoryType == INVTYPE_RANGEDRIGHT))
+    if (!CustomScalingStatValue)
     {
-        attType = RANGED_ATTACK;
-    }
-    else if (slot == EQUIPMENT_SLOT_OFFHAND)
-    {
-        attType = OFF_ATTACK;
-    }
+        // Add armor bonus from ArmorDamageModifier if > 0
+        if (proto->ArmorDamageModifier > 0 && sScriptMgr->CanArmorDamageModifier(this))
+            HandleStatModifier(UNIT_MOD_ARMOR, TOTAL_VALUE, float(proto->ArmorDamageModifier), apply);
 
-    if (CanUseAttackType(attType))
-        _ApplyWeaponDamage(slot, proto, ssv, apply);
+        if (proto->Block)
+            HandleBaseModValue(SHIELD_BLOCK_VALUE, FLAT_MOD, float(proto->Block), apply);
 
-    // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
-    if (getClass() == CLASS_DRUID)
-    {
-        int32 dpsMod = 0;
-        int32 feral_bonus = 0;
-        if (ssv)
+        if (proto->HolyRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_HOLY, BASE_VALUE, float(proto->HolyRes), apply);
+
+        if (proto->FireRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_FIRE, BASE_VALUE, float(proto->FireRes), apply);
+
+        if (proto->NatureRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_NATURE, BASE_VALUE, float(proto->NatureRes), apply);
+
+        if (proto->FrostRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_FROST, BASE_VALUE, float(proto->FrostRes), apply);
+
+        if (proto->ShadowRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_SHADOW, BASE_VALUE, float(proto->ShadowRes), apply);
+
+        if (proto->ArcaneRes)
+            HandleStatModifier(UNIT_MOD_RESISTANCE_ARCANE, BASE_VALUE, float(proto->ArcaneRes), apply);
+
+        WeaponAttackType attType = BASE_ATTACK;
+
+        if (slot == EQUIPMENT_SLOT_RANGED && (
+                    proto->InventoryType == INVTYPE_RANGED || proto->InventoryType == INVTYPE_THROWN ||
+                    proto->InventoryType == INVTYPE_RANGEDRIGHT))
         {
-            dpsMod = ssv->getDPSMod(ScalingStatValue);
-            feral_bonus += ssv->getFeralBonus(ScalingStatValue);
+            attType = RANGED_ATTACK;
+        }
+        else if (slot == EQUIPMENT_SLOT_OFFHAND)
+        {
+            attType = OFF_ATTACK;
         }
 
-        feral_bonus += proto->getFeralBonus(dpsMod);
-        sScriptMgr->OnGetFeralApBonus(this, feral_bonus, dpsMod, proto, ssv);
-        if (feral_bonus)
-            ApplyFeralAPBonus(feral_bonus, apply);
+        if (CanUseAttackType(attType))
+            _ApplyWeaponDamage(slot, proto, ssv, apply);
+
+        // Druids get feral AP bonus from weapon dps (also use DPS from ScalingStatValue)
+        if (getClass() == CLASS_DRUID)
+        {
+            int32 dpsMod = 0;
+            int32 feral_bonus = 0;
+            if (ssv)
+            {
+                dpsMod = ssv->getDPSMod(ScalingStatValue);
+                feral_bonus += ssv->getFeralBonus(ScalingStatValue);
+            }
+
+            feral_bonus += proto->getFeralBonus(dpsMod);
+            sScriptMgr->OnGetFeralApBonus(this, feral_bonus, dpsMod, proto, ssv);
+            if (feral_bonus)
+                ApplyFeralAPBonus(feral_bonus, apply);
+        }
     }
 }
 
@@ -10969,10 +10969,16 @@ void Player::ToggleMetaGemsActive(uint8 exceptslot, bool apply)
     }
 }
 
-void Player::SetEntryPoint()
+void Player::ClearEntryPoint()
 {
     m_entryPointData.joinPos.m_mapId = MAPID_INVALID;
     m_entryPointData.ClearTaxiPath();
+    m_entryPointData.mountSpell = 0;
+}
+
+void Player::SetEntryPoint()
+{
+    ClearEntryPoint();
 
     if (!m_taxi.empty())
     {
@@ -10993,8 +10999,6 @@ void Player::SetEntryPoint()
             if (!auras.empty())
                 m_entryPointData.mountSpell = (*auras.begin())->GetId();
         }
-        else
-            m_entryPointData.mountSpell = 0;
 
         if (GetMap()->IsDungeon())
         {
@@ -12319,13 +12323,6 @@ uint32 Player::GetResurrectionSpellId()
 // Used in triggers for check "Only to targets that grant experience or honor" req
 bool Player::isHonorOrXPTarget(Unit* victim) const
 {
-    uint8 v_level = victim->getLevel();
-    uint8 k_grey  = Acore::XP::GetGrayLevel(getLevel());
-
-    // Victim level less gray level
-    if (v_level <= k_grey)
-        return false;
-
     if (victim->GetTypeId() == TYPEID_UNIT)
     {
         if (victim->IsTotem() ||

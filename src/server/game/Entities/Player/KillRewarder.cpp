@@ -66,7 +66,7 @@ KillRewarder::KillRewarder(Player* killer, Unit* victim, bool isBattleGround) :
 // 1. Initialize internal variables to default values.
         _killer(killer), _victim(victim), _group(killer->GetGroup()),
         _groupRate(1.0f), _maxNotGrayMember(nullptr), _count(0), _aliveSumLevel(0), _sumLevel(0), _xp(0),
-        _isFullXP(false), _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
+        _maxLevel(0), _isBattleGround(isBattleGround), _isPvP(false)
 {
     // mark the credit as pvp if victim is player
     if (victim->GetTypeId() == TYPEID_PLAYER)
@@ -101,8 +101,7 @@ void KillRewarder::_InitGroupData()
                         }
                         // 2.4. _maxNotGrayMember - maximum level of alive group member within reward distance,
                         //      for whom victim is not gray;
-                        uint32 grayLevel = Acore::XP::GetGrayLevel(lvl);
-                        if (_victim->getLevel() > grayLevel && (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl))
+                        if (!_maxNotGrayMember || _maxNotGrayMember->getLevel() < lvl)
                         {
                             _maxNotGrayMember = member;
                         }
@@ -110,9 +109,6 @@ void KillRewarder::_InitGroupData()
                     // 2.5. _sumLevel - sum of levels of group members within reward distance;
                     _sumLevel += lvl;
                 }
-        // 2.6. _isFullXP - flag identifying that for all group members victim is not gray,
-        //      so 100% XP will be rewarded (50% otherwise).
-        _isFullXP = _maxNotGrayMember && (_maxLevel == _maxNotGrayMember->getLevel());
     }
     else
         _count = 1;
@@ -145,19 +141,7 @@ void KillRewarder::_RewardHonor(Player* player)
 void KillRewarder::_RewardXP(Player* player, float rate)
 {
     uint32 xp(_xp);
-    if (_group)
-    {
-        // 4.2.1. If player is in group, adjust XP:
-        //        * set to 0 if player's level is more than maximum level of not gray member;
-        //        * cut XP in half if _isFullXP is false.
-        if (_maxNotGrayMember && player->IsAlive() &&
-            _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
-                 uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
-                 uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
-        else
-            xp = 0;
-    }
+    xp = uint32(xp * rate);
     if (xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
@@ -206,8 +190,8 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
     // Give reputation and kill credit only in PvE.
     if (!_isPvP || _isBattleGround)
     {
-        float xpRate = _group ? _groupRate * float(player->getLevel()) / _aliveSumLevel : /*Personal rate is 100%.*/ 1.0f; // Group rate depends on the sum of levels.
-        float reputationRate = _group ? _groupRate * float(player->getLevel()) / _sumLevel : /*Personal rate is 100%.*/ 1.0f; // Group rate depends on the sum of levels.
+        float xpRate = _group ? _groupRate / _count : 1.0f;
+        float reputationRate = _group ? _groupRate / _count : 1.0f;
         sScriptMgr->OnRewardKillRewarder(player, isDungeon, xpRate);                                              // Personal rate is 100%.
 
         if (_xp)

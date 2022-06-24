@@ -47,6 +47,7 @@ uint32 Acore::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels conten
     if (mob_level >= pl_level)
     {
         uint8 nLevelDiff = mob_level - pl_level;
+
         if (nLevelDiff > 4)
             nLevelDiff = 4;
 
@@ -54,14 +55,9 @@ uint32 Acore::XP::BaseGain(uint8 pl_level, uint8 mob_level, ContentLevels conten
     }
     else
     {
-        uint8 gray_level = GetGrayLevel(pl_level);
-        if (mob_level > gray_level)
-        {
-            uint8 ZD = GetZeroDifference(pl_level);
-            baseGain = (pl_level * 5 + nBaseExp) * (ZD + mob_level - pl_level) / ZD;
-        }
-        else
-            baseGain = 0;
+        int nLevelDiff = std::max(mob_level - pl_level, -3);
+        uint8 ZD = GetZeroDifference(pl_level);
+        baseGain = (pl_level * 5 + nBaseExp) * (ZD + nLevelDiff) / ZD;
     }
 
     //sScriptMgr->OnBaseGainCalculation(baseGain, pl_level, mob_level, content); // pussywizard: optimization
@@ -124,9 +120,9 @@ uint32 Acore::XP::Gain(Player* player, Unit* unit, bool isBattleGround /*= false
         }
 
         // if players dealt less than 50% of the damage and were credited anyway (due to CREATURE_FLAG_EXTRA_NO_PLAYER_DAMAGE_REQ), scale XP gained appropriately (linear scaling)
-        if (creature && creature->m_PlayerDamageReq)
+        if (creature && creature->GetPlayerDamageReq())
         {
-            xpMod *= 1.0f - 2.0f * creature->m_PlayerDamageReq / creature->GetMaxHealth();
+            xpMod *= 1.0f - 2.0f * creature->GetPlayerDamageReq() / creature->GetMaxHealth();
         }
 
         gain = uint32(gain * xpMod);

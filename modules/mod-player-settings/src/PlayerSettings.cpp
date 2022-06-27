@@ -241,21 +241,34 @@ private:
                 {
                     if (Player *player = iter->GetSource())
                     {
-                        int honor = -1;
-                        float honor_f = (float)honor;
                         player->UpdateHonorFields();
+
+                        int honor = 0;
+                        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+                        uint32 nplayers = std::min(5u, std::max(mapInfo->nplayers, mapInfo->veto));
+                        Group* group = player->GetGroup();
                         uint8 playerLevel = player->getLevel();
                         uint8 gray = Acore::XP::GetGrayLevel(playerLevel);
                         uint8 bossLevel = killed->getLevel();
-                        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
-                        uint32 nplayers = std::min(5u, std::max(mapInfo->nplayers, mapInfo->veto));
 
-                        if (bossLevel > gray)
+                        if (group && group->isLFGGroup())
                         {
-                            honor_f = ceil(Acore::Honor::hk_honor_at_level_f(playerLevel) * (bossLevel - gray) / (playerLevel - gray));
+                            float honor_f = Acore::Honor::hk_honor_at_level_f(playerLevel);
                             honor_f *= sWorld->getRate(RATE_HONOR);
                             honor_f *= 1 + honorMultiplier * (nplayers - 1);
                             honor = int32(honor_f);
+                        }
+                        else if (bossLevel > gray)
+                        {
+                            float multiplier = float(bossLevel - gray) / float(playerLevel - gray);
+                            float honor_f = ceil(Acore::Honor::hk_honor_at_level_f(playerLevel) * multiplier);
+                            honor_f *= sWorld->getRate(RATE_HONOR);
+                            honor_f *= 1 + honorMultiplier * (nplayers - 1);
+                            honor = int32(honor_f);
+                        }
+
+                        if (honor)
+                        {
                             player->ModifyHonorPoints(honor);
                             ChatHandler(player->GetSession()).PSendSysMessage("You have been awarded %i honor.", honor);
                             uint32 guid = player->GetGUID().GetCounter();
@@ -436,10 +449,10 @@ public:
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
         mapInfo->nplayers = map->GetPlayersCountExceptGMs();
 
-        if (mapInfo->nplayers == 0)
+        if (!mapInfo->nplayers)
             mapInfo->nplayers = 1;
 
-        if (mapInfo->veto == 0)
+        if (!mapInfo->veto)
             mapInfo->veto = mapInfo->nplayers;
 
         if (map->GetEntry()->IsDungeon() && player)

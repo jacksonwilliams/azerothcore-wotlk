@@ -2,6 +2,7 @@
 #include "Config.h"
 #include "Player.h"
 #include "ScriptMgr.h"
+#include "ScriptedGossip.h"
 #include "DataMap.h"
 #include "Group.h"
 #include "DBUpdater.h"
@@ -11,6 +12,9 @@
 
 #define TITLES_OFFSET           180
 #define TITLES_PER_RANK         9
+
+#define GOSSIP_BACK             1
+#define GOSSIP_OPTION           2
 
 const std::map<uint32, uint32> Class2Index = {
     { CLASS_WARRIOR, 0 },
@@ -260,59 +264,6 @@ public:
     }
 };
 
-class HardcoreCommand : public CommandScript
-{
-public:
-    HardcoreCommand() : CommandScript("HardcoreCommand") {}
-
-    Acore::ChatCommands::ChatCommandTable GetCommands() const
-    {
-        static Acore::ChatCommands::ChatCommandTable commands =
-        {
-            {"hardcore", HandleHardcoreCommand, SEC_PLAYER, Acore::ChatCommands::Console::No},
-        };
-
-        return commands;
-    }
-
-    static bool HandleHardcoreCommand(ChatHandler *handler)
-    {
-        Player* player = handler->GetPlayer();
-
-        if (!player)
-            return false;
-
-        if (player->getLevel() != 1) {
-            handler->PSendSysMessage("Hardcore characters must start at level 1.");
-            return true;
-        }
-
-        std::string query = "SELECT counter FROM character_achievement_progress WHERE criteria = 111 AND guid = " + std::to_string(player->GetGUID().GetCounter());
-        QueryResult result = CharacterDatabase.Query(query);
-
-        if (result) {
-            handler->PSendSysMessage("Hardcore character must not have died.");
-            return true;
-        }
-
-        player->AddAura(SPELL_AURA_HARDCORE, player);
-        handler->PSendSysMessage("Hardcore activated.");
-        handler->PSendSysMessage(
-            "Note: Wobbling Goblin is in no way responsible for your Hardcore "
-            "character. If you choose to create and play a Hardcore character, "
-            "you do so at your own risk. Wobbling Goblin is not responsible "
-            "for the death and loss of your hardcore characters for any reason "
-            "including Internet lag, bugs, Acts of God, your little sister, or "
-            "any other reason whatsoever. Consult the End User License Agreement "
-            "for more details. Wobbling Goblin will not, and does not have the "
-            "capability to restore any deceased Hardcore characters. Don't even "
-            "ask. La-la-la-la-la, we can't hear you..."
-        );
-
-        return true;
-    }
-};
-
 class HardcoreDatabase : public DatabaseScript
 {
 public:
@@ -344,11 +295,103 @@ public:
     }
 };
 
+class npc_starter : public CreatureScript
+{
+public:
+    npc_starter() : CreatureScript("npc_starter") {}
+
+    bool OnGossipHello(Player* player, Creature* creature)
+    {
+        if (!sConfigMgr->GetOption<bool>("Hardcore.Enable", false))
+            return false;
+
+        ClearGossipMenuFor(player);
+
+        std::string query = "SELECT counter FROM character_achievement_progress WHERE criteria = 111 AND guid = " + std::to_string(player->GetGUID().GetCounter());
+        QueryResult result = CharacterDatabase.Query(query);    
+
+        if (creature->IsQuestGiver())
+            player->PrepareQuestMenu(creature->GetGUID());
+
+        bool isLevelOne = player->getLevel() == 1;
+        bool hasMoney = player->GetMoney() != 0;
+        bool isHardcore = player->HasAura(SPELL_AURA_HARDCORE);
+
+        if (isLevelOne && !hasMoney && !isHardcore)
+            AddGossipItemFor(player, 62000, 1, GOSSIP_SENDER_MAIN, GOSSIP_OPTION);
+
+        switch (player->getRace())
+        {
+        case RACE_HUMAN:
+            SendGossipMenuFor(player, 50016, creature->GetGUID());
+            break;
+        case RACE_NIGHTELF:
+            SendGossipMenuFor(player, 4936, creature->GetGUID());
+            break;
+        case RACE_DWARF:
+            SendGossipMenuFor(player, 4937, creature->GetGUID());
+            break;
+        case RACE_GNOME:
+            SendGossipMenuFor(player, 4937, creature->GetGUID());
+            break;
+        case RACE_DRAENEI:
+            SendGossipMenuFor(player, 8667, creature->GetGUID());
+            break;
+        case RACE_ORC:
+            SendGossipMenuFor(player, 3583, creature->GetGUID());
+            break;
+        case RACE_TROLL:
+            SendGossipMenuFor(player, 3583, creature->GetGUID());
+            break;
+        case RACE_TAUREN:
+            SendGossipMenuFor(player, 4935, creature->GetGUID());
+            break;
+        case RACE_BLOODELF:
+            SendGossipMenuFor(player, 16703, creature->GetGUID());
+            break;
+        case RACE_UNDEAD_PLAYER:
+            SendGossipMenuFor(player, 938, creature->GetGUID());
+            break;
+        }
+
+        return true;
+    }
+
+    bool OnGossipSelect(Player* player, Creature* creature, uint32 sender, uint32 action)
+    {
+
+        if (!sConfigMgr->GetOption<bool>("Hardcore.Enable", false))
+            return false;
+
+        if (sender != GOSSIP_SENDER_MAIN)
+            return false;
+
+        if (action == GOSSIP_BACK)
+        {
+            OnGossipHello(player, creature);
+        }
+        else if (action == GOSSIP_OPTION)
+        {
+            ClearGossipMenuFor(player);
+            AddGossipItemFor(player, 62001, 1, GOSSIP_SENDER_MAIN, GOSSIP_OPTION + 1);
+            AddGossipItemFor(player, 62002, 1, GOSSIP_SENDER_MAIN, GOSSIP_BACK);
+            SendGossipMenuFor(player, 60047, creature->GetGUID());
+        }
+        else if (action == GOSSIP_OPTION + 1)
+        {
+            player->CastSpell(player, SPELL_AURA_HARDCORE, true);
+            CloseGossipMenuFor(player);
+        }
+
+        return true;
+    }
+};
+
 void AddHardcoreScripts()
 {
     new HardcorePlayer();
     new HardcoreGuild();
     new HardcoreMisc();
-    new HardcoreCommand();
     new HardcoreDatabase();
+    new npc_starter();
 }

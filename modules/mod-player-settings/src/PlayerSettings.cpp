@@ -16,6 +16,8 @@
 #include <cstdlib>
 #include <vector>
 
+#define BOSS_VAELASTRASZ    13020
+
 // DPS count as 1 offensive unit. Tanks and healers count as 1 defensive unit.
 
 // 5 man: 1 tank, 3 dps, 1 healer = 3 offensive units and 2 defensive units.
@@ -569,10 +571,20 @@ public:
         uint32 scaledCurrentHealth = previousHealth && previousMaxHealth ? float(scaledHealth) / float(previousMaxHealth) * float(previousHealth) : 0;
 
         static bool initialized;
-        if (!initialized) {
-            initialized = true;
+        if (creatureInfo->entry = creature->GetEntry() == BOSS_VAELASTRASZ)
+        {
             creature->SetHealth(scaledCurrentHealth);
             creature->UpdateAllStats();
+            return;
+        }
+        else
+        {
+            if (!initialized)
+            {
+                initialized = true;
+                creature->SetHealth(scaledCurrentHealth);
+                creature->UpdateAllStats();
+            }
         }
     }
 };

@@ -297,7 +297,7 @@ void SmartAI::EndPath(bool fail)
         mEscortNPCFlags = 0;
     }
 
-    ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS);
+    ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me);
     if (targets && mEscortQuestID)
     {
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))
@@ -524,7 +524,17 @@ void SmartAI::UpdateAI(uint32 diff)
     }
 
     if (!IsAIControlled())
+    {
+        if (CharmInfo* charmInfo = me->GetCharmInfo())
+        {
+            if (charmInfo->IsCommandAttack() && mCanAutoAttack)
+            {
+                DoMeleeAttackIfReady();
+            }
+        }
+
         return;
+    }
 
     if (!UpdateVictim())
         return;
@@ -535,7 +545,7 @@ void SmartAI::UpdateAI(uint32 diff)
 
 bool SmartAI::IsEscortInvokerInRange()
 {
-    if (ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS))
+    if (ObjectVector const* targets = GetScript()->GetStoredTargetVector(SMART_ESCORT_TARGETS, *me))
     {
         float checkDist = me->GetInstanceScript() ? SMART_ESCORT_MAX_PLAYER_DIST * 2 : SMART_ESCORT_MAX_PLAYER_DIST;
         if (targets->size() == 1 && GetScript()->IsPlayer((*targets->begin())))

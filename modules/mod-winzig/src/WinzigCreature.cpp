@@ -37,8 +37,8 @@ std::string npc_winzig::GetItemIcon(uint32 entry, uint32 width, uint32 height, i
 void npc_winzig::WithdrawItem(Player* player, uint32 entry)
 {
     // This query can be changed to async to improve performance, but there will be some visual bugs because the query will not be done executing when the menu refreshes
-    std::string query = "SELECT amount FROM reagent_bank WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " AND item_entry = " + std::to_string(entry);
-    QueryResult result = CharacterDatabase.Query("SELECT amount FROM reagent_bank WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " AND item_entry = " + std::to_string(entry));
+    std::string query = "SELECT amount FROM reagent_bank WHERE account_id = " + std::to_string(player->GetSession()->GetAccountId()) + " AND item_entry = " + std::to_string(entry);
+    QueryResult result = CharacterDatabase.Query("SELECT amount FROM reagent_bank WHERE account_id = " + std::to_string(player->GetSession()->GetAccountId()) + " AND item_entry = " + std::to_string(entry));
     if (result)
     {
         uint32 storedAmount = (*result)[0].Get<uint32>();
@@ -51,7 +51,7 @@ void npc_winzig::WithdrawItem(Player* player, uint32 entry)
             InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry, storedAmount);
             if (msg == EQUIP_ERR_OK)
             {
-                CharacterDatabase.Execute("DELETE FROM reagent_bank WHERE character_id = {} AND item_entry = {}", player->GetGUID().GetCounter(), entry);
+                CharacterDatabase.Execute("DELETE FROM reagent_bank WHERE account_id = {} AND item_entry = {}", player->GetSession()->GetAccountId(), entry);
                 Item* item = player->StoreNewItem(dest, entry, true);
                 player->SendNewItem(item, storedAmount, true, false);
             }
@@ -68,7 +68,7 @@ void npc_winzig::WithdrawItem(Player* player, uint32 entry)
             InventoryResult msg = player->CanStoreNewItem(NULL_BAG, NULL_SLOT, dest, entry, stackSize);
             if (msg == EQUIP_ERR_OK)
             {
-                CharacterDatabase.Execute("UPDATE reagent_bank SET amount = {} WHERE character_id = {} AND item_entry = {}", storedAmount - stackSize, player->GetGUID().GetCounter(), entry);
+                CharacterDatabase.Execute("UPDATE reagent_bank SET amount = {} WHERE account_id = {} AND item_entry = {}", storedAmount - stackSize, player->GetSession()->GetAccountId(), entry);
                 Item* item = player->StoreNewItem(dest, entry, true);
                 player->SendNewItem(item, stackSize, true, false);
             }
@@ -107,7 +107,7 @@ void npc_winzig::UpdateItemCount(std::map<uint32, uint32> &entryToAmountMap, std
 
 void npc_winzig::DepositAllReagents(Player* player) {
     WorldSession *session = player->GetSession();
-    std::string query = "SELECT item_entry, item_subclass, amount FROM reagent_bank WHERE character_id = " + std::to_string(player->GetGUID().GetCounter());
+    std::string query = "SELECT item_entry, item_subclass, amount FROM reagent_bank WHERE account_id = " + std::to_string(player->GetSession()->GetAccountId());
     session->GetQueryProcessor().AddCallback( CharacterDatabase.AsyncQuery(query).WithCallback([=](QueryResult result) {
         std::map<uint32, uint32> entryToAmountMap;
         std::map<uint32, uint32> entryToSubclassMap;
@@ -150,7 +150,7 @@ void npc_winzig::DepositAllReagents(Player* player) {
                 uint32 itemEntry = mapEntry.first;
                 uint32 itemAmount = mapEntry.second;
                 uint32 itemSubclass = entryToSubclassMap.find(itemEntry)->second;
-                trans->Append("REPLACE INTO reagent_bank (character_id, item_entry, item_subclass, amount) VALUES ({}, {}, {}, {})", player->GetGUID().GetCounter(), itemEntry, itemSubclass, itemAmount);
+                trans->Append("REPLACE INTO reagent_bank (account_id, item_entry, item_subclass, amount) VALUES ({}, {}, {}, {})", player->GetSession()->GetAccountId(), itemEntry, itemSubclass, itemAmount);
             }
             CharacterDatabase.CommitTransaction(trans);
         }
@@ -219,7 +219,7 @@ bool npc_winzig::OnGossipSelect(Player* player, Creature* creature, uint32 item_
 void npc_winzig::ShowReagentItems(Player* player, Creature* creature, uint32 item_subclass, uint16 gossipPageNumber)
 {
     WorldSession* session = player->GetSession();
-    std::string query = "SELECT item_entry, amount FROM reagent_bank WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " AND item_subclass = " +
+    std::string query = "SELECT item_entry, amount FROM reagent_bank WHERE account_id = " + std::to_string(player->GetSession()->GetAccountId()) + " AND item_subclass = " +
             std::to_string(item_subclass) + " ORDER BY item_entry";
     session->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(query).WithCallback([=](QueryResult result)
     {
@@ -260,7 +260,7 @@ void npc_winzig::ShowReagentItems(Player* player, Creature* creature, uint32 ite
 void npc_winzig::ShowReagentItems(Player* player, Item* item, uint32 item_subclass, uint16 gossipPageNumber)
 {
     WorldSession* session = player->GetSession();
-    std::string query = "SELECT item_entry, amount FROM reagent_bank WHERE character_id = " + std::to_string(player->GetGUID().GetCounter()) + " AND item_subclass = " +
+    std::string query = "SELECT item_entry, amount FROM reagent_bank WHERE account_id = " + std::to_string(player->GetSession()->GetAccountId()) + " AND item_subclass = " +
             std::to_string(item_subclass) + " ORDER BY item_entry";
     session->GetQueryProcessor().AddCallback(CharacterDatabase.AsyncQuery(query).WithCallback([=](QueryResult result)
     {

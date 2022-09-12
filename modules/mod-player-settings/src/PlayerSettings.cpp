@@ -26,12 +26,16 @@ enum WorldBosses
     BOSS_TAERAR         = 14890,
     BOSS_EMERISS        = 14889,
     BOSS_LETHON         = 14888,
-    BOSS_YSONDRE        = 14887
+    BOSS_YSONDRE        = 14887,
+    BOSS_AZUREGOS       = 6109,
+    BOSS_KAZZAK         = 12397,
+    BOSS_TEREMUS        = 7846
 };
 
-std::array<uint32, 5> WorldBossArray =
+std::array<uint32, 8> WorldBossArray =
 {
-    BOSS_VAELASTRASZ, BOSS_TAERAR, BOSS_EMERISS, BOSS_LETHON, BOSS_YSONDRE
+    BOSS_VAELASTRASZ, BOSS_TAERAR, BOSS_EMERISS, BOSS_LETHON,
+    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK, BOSS_TEREMUS
 };
 
 enum WorldBossZones
@@ -39,12 +43,16 @@ enum WorldBossZones
     ZONE_TAERAR     = 10,
     ZONE_EMERISS    = 47,
     ZONE_LETHON     = 357,
-    ZONE_YSONDRE    = 331
+    ZONE_YSONDRE    = 331,
+    ZONE_AZUREGOS   = 61,
+    ZONE_KAZZAK     = 4,
+    ZONE_TEREMUS    = 4
 };
 
-std::array<uint32, 4> WorldBossZoneArray =
+std::array<uint32, 7> WorldBossZoneArray =
 {
-    ZONE_TAERAR, ZONE_EMERISS, ZONE_LETHON, ZONE_YSONDRE
+    ZONE_TAERAR, ZONE_EMERISS, ZONE_LETHON, ZONE_YSONDRE,
+    ZONE_AZUREGOS, ZONE_KAZZAK, ZONE_TEREMUS
 };
 
 enum Spells

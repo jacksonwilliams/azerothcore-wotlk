@@ -28,31 +28,29 @@ enum WorldBosses
     BOSS_LETHON         = 14888,
     BOSS_YSONDRE        = 14887,
     BOSS_AZUREGOS       = 6109,
-    BOSS_KAZZAK         = 12397,
-    BOSS_TEREMUS        = 7846
+    BOSS_KAZZAK         = 12397
 };
 
 std::array<uint32, 8> WorldBossArray =
 {
     BOSS_VAELASTRASZ, BOSS_TAERAR, BOSS_EMERISS, BOSS_LETHON,
-    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK, BOSS_TEREMUS
+    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK
 };
 
 enum WorldBossZones
 {
-    ZONE_TAERAR     = 10,
-    ZONE_EMERISS    = 47,
-    ZONE_LETHON     = 357,
-    ZONE_YSONDRE    = 331,
-    ZONE_AZUREGOS   = 61,
-    ZONE_KAZZAK     = 4,
-    ZONE_TEREMUS    = 4
+    ZONE_TAERAR     = 856,  // Twilight Grove
+    ZONE_EMERISS    = 1111,  // Dream Bough
+    ZONE_LETHON     = 356,  // Seradane
+    ZONE_YSONDRE    = 438,  // Bough Shadow
+    ZONE_AZUREGOS   = 16,  // Azshara
+    ZONE_KAZZAK     = 73  // The Tainted Scar
 };
 
 std::array<uint32, 7> WorldBossZoneArray =
 {
     ZONE_TAERAR, ZONE_EMERISS, ZONE_LETHON, ZONE_YSONDRE,
-    ZONE_AZUREGOS, ZONE_KAZZAK, ZONE_TEREMUS
+    ZONE_AZUREGOS, ZONE_KAZZAK
 };
 
 enum Spells
@@ -86,8 +84,6 @@ public:
     PlayerSettingsMapInfo() {}
     uint32 nplayers = 0;
     uint32 veto = 0;
-    uint32 zone = 0;
-    uint32 area = 0;
     std::map<uint32, float> honor;
     std::map<uint32, bool> rewarded;
     std::map<uint32, uint32> rdf;
@@ -119,6 +115,39 @@ class PlayerSettingsPlayerScript : public PlayerScript
 public:
     PlayerSettingsPlayerScript() : PlayerScript("PlayerSettingsPlayer") {}
 
+    
+    void OnUpdateArea(Player* player, uint32 oldArea, uint32 newArea) override
+    {
+        if (!enabled)
+            return;
+
+        if (player->IsGameMaster())
+            return;
+
+        Map *map = player->GetMap();
+        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+        Map::PlayerList const &players = map->GetPlayers();
+        mapInfo->nplayers = map->GetPlayersCountExceptGMs();
+
+        if (!mapInfo->nplayers)
+            mapInfo->nplayers = 1;
+
+        if (!mapInfo->veto)
+            mapInfo->veto = mapInfo->nplayers;
+
+        if (mapInfo->nplayers > 1 && oldArea != newArea)
+        {
+            if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), newArea) != WorldBossZoneArray.end())
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+                    if (Player *player = iter->GetSource())
+                            ChatHandler(player->GetSession()).PSendSysMessage("%s has entered a World Boss area. The minions of hell grow stronger.", player->GetName().c_str());
+
+            if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), oldArea) != WorldBossZoneArray.end())
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+                    if (Player *player = iter->GetSource())
+                            ChatHandler(player->GetSession()).PSendSysMessage("%s has left a World Boss area. The minions of hell grow weaker.", player->GetName().c_str());
+        }
+    }
     void OnGiveXP(Player *player, uint32 &amount, Unit *victim) override
     {
         if (victim)
@@ -502,8 +531,6 @@ public:
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
         Map::PlayerList const &players = map->GetPlayers();
         mapInfo->nplayers = map->GetPlayersCountExceptGMs();
-        mapInfo->zone = player->GetZoneId();
-        mapInfo->area = player->GetAreaId();
 
         if (!mapInfo->nplayers)
             mapInfo->nplayers = 1;
@@ -512,15 +539,12 @@ public:
             mapInfo->veto = mapInfo->nplayers;
 
         for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-            if (Player *handle = iter->GetSource())
+            if (Player *player = iter->GetSource())
             {
-                if (mapInfo->nplayers > 0)
+                if (mapInfo->nplayers > 1)
                 {
                     if (map->GetEntry()->IsDungeon())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has entered the instance. The minions of hell grow stronger.", player->GetName().c_str());
-
-                    if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), mapInfo->area) != WorldBossZoneArray.end())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has entered a World Boss area. The minions of hell grow stronger.", player->GetName().c_str());
+                        ChatHandler(player->GetSession()).PSendSysMessage("%s has entered the instance. The minions of hell grow stronger.", player->GetName().c_str());
                 }
             }
     }
@@ -537,7 +561,7 @@ public:
         Map::PlayerList const &players = map->GetPlayers();
 
         for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-            if (Player *handle = iter->GetSource())
+            if (Player *player = iter->GetSource())
             {
                 if (!player->IsInCombat())
                     mapInfo->nplayers = map->GetPlayersCountExceptGMs() - 1;
@@ -545,10 +569,7 @@ public:
                 if (mapInfo->nplayers > 0)
                 {
                     if (map->GetEntry()->IsDungeon())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
-                
-                    if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), player->GetAreaId()) != WorldBossZoneArray.end())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has left a World Boss area. The minions of hell grow weaker.", player->GetName().c_str());
+                        ChatHandler(player->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
                 }
             }
     }

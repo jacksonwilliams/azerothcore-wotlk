@@ -138,7 +138,7 @@ public:
         if (!mapInfo->veto)
             mapInfo->veto = mapInfo->nplayers;
 
-        if (mapInfo->nplayers > 1 && oldArea != newArea)
+        if (mapInfo->nplayers > 5 && oldArea != newArea)
         {
             if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), newArea) != WorldBossZoneArray.end())
                 for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)

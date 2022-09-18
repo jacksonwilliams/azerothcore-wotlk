@@ -28,13 +28,16 @@ enum WorldBosses
     BOSS_LETHON         = 14888,
     BOSS_YSONDRE        = 14887,
     BOSS_AZUREGOS       = 6109,
-    BOSS_KAZZAK         = 12397
+    BOSS_KAZZAK         = 12397,
+    BOSS_MAWS           = 15571,
+    BOSS_ERANIKUS       = 15491,
 };
 
-std::array<uint32, 8> WorldBossArray =
+std::array<uint32, 9> WorldBossArray =
 {
     BOSS_VAELASTRASZ, BOSS_TAERAR, BOSS_EMERISS, BOSS_LETHON,
-    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK
+    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK, BOSS_MAWS,
+    BOSS_ERANIKUS
 };
 
 enum WorldBossZones
@@ -47,7 +50,7 @@ enum WorldBossZones
     ZONE_KAZZAK     = 73  // The Tainted Scar
 };
 
-std::array<uint32, 7> WorldBossZoneArray =
+std::array<uint32, 6> WorldBossZoneArray =
 {
     ZONE_TAERAR, ZONE_EMERISS, ZONE_LETHON, ZONE_YSONDRE,
     ZONE_AZUREGOS, ZONE_KAZZAK

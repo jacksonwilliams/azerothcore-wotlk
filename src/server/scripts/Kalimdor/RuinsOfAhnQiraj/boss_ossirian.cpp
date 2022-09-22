@@ -65,7 +65,6 @@ enum Events
     EVENT_SILENCE               = 1,
     EVENT_CYCLONE               = 2,
     EVENT_STOMP                 = 3,
-    EVENT_SPEEDUP               = 4
 };
 
 enum Misc
@@ -165,7 +164,6 @@ struct boss_ossirian : public BossAI
     {
         BossAI::EnterCombat(who);
         events.Reset();
-        events.ScheduleEvent(EVENT_SPEEDUP, 10s);
         events.ScheduleEvent(EVENT_SILENCE, 30s);
         events.ScheduleEvent(EVENT_CYCLONE, 20s);
         events.ScheduleEvent(EVENT_STOMP, 30s);
@@ -279,9 +277,6 @@ struct boss_ossirian : public BossAI
         {
             switch (eventId)
             {
-                case EVENT_SPEEDUP:
-                    DoCastSelf(SPELL_SPEED_BURST);
-                    break;
                 case EVENT_SILENCE:
                     DoCastAOE(SPELL_CURSE_OF_TONGUES);
                     events.ScheduleEvent(EVENT_SILENCE, 20s, 30s);

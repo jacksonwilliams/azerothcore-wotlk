@@ -114,7 +114,7 @@ struct boss_kurinnaxx : public BossAI
                     events.ScheduleEvent(EVENT_MORTAL_WOUND, 8s, 10s);
                     break;
                 case EVENT_SAND_TRAP:
-                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1, 100.f, true))
+                    if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 100.f, true))
                     {
                         target->CastSpell(target, SPELL_SAND_TRAP, true, nullptr, nullptr, me->GetGUID());
                     }

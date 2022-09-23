@@ -37,7 +37,6 @@ COPY --chown=$USER:$USER deps /core/deps
 COPY --chown=$USER:$USER etc /core/etc
 COPY --chown=$USER:$USER modules /core/modules
 COPY --chown=$USER:$USER src /core/src
-COPY --chown=$USER:$USER acore.json /core/acore.json
 COPY --chown=$USER:$USER CMakeLists.txt /core/CMakeLists.txt
 
 WORKDIR /core
@@ -46,16 +45,12 @@ RUN chown -R $USER:$USER /home/wobgob
 RUN chown -R $USER:$USER /run
 RUN chown -R $USER:$USER /opt
 
-FROM base as build
-
-ARG USER=wobgob
-
 RUN mkdir build
 RUN cd build && \
   cmake ../ -DCMAKE_INSTALL_PREFIX=/core/ -DCMAKE_C_COMPILER=/usr/bin/clang \
     -DCMAKE_CXX_COMPILER=/usr/bin/clang++ -DWITH_WARNINGS=1 -DTOOLS=0 \
     -DSCRIPTS=static -DMODULES=static && \
-  make -j 6 && \
+  make -j $(nproc) && \
   make install
 
 FROM ubuntu:20.04 as server
@@ -84,10 +79,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && dpkg-reconfigure --frontend noninteractive tzdata
 
-COPY --chown=$USER:$USER data /core/data
-COPY --chown=$USER:$USER deps /core/deps
-COPY --chown=$USER:$USER modules /core/modules
-
 RUN chown -R $USER:$USER /home/wobgob
 RUN chown -R $USER:$USER /run
 RUN chown -R $USER:$USER /opt
@@ -97,9 +88,8 @@ USER $USER
 COPY --chown=$USER:$USER --from=base /core/data /core/data
 COPY --chown=$USER:$USER --from=base /core/etc /core/etc
 COPY --chown=$USER:$USER --from=base /core/modules /core/modules
-COPY --chown=$USER:$USER --from=build /core/bin/authserver /core/bin/authserver
-COPY --chown=$USER:$USER --from=build /core/bin/worldserver /core/bin/worldserver
-COPY --chown=$USER:$USER --from=build /core/etc /core/etc
+COPY --chown=$USER:$USER --from=base /core/bin/authserver /core/bin/authserver
+COPY --chown=$USER:$USER --from=base /core/bin/worldserver /core/bin/worldserver
 COPY --chown=$USER:$USER entrypoint.sh /
 
 EXPOSE 3724

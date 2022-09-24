@@ -1,13 +1,13 @@
 [worldserver]
 
 ########################################
-# Colonist module configuration
+# WobgobWorld module configuration
 ########################################
 #
-#    Colonist.Enable
+#    WobgobWorld.Enable
 #        Description: Enable the colonist module and give people titles for early adoption
 #        Default:     0 - Disabled
 #                     1 - Enabled
 #
 
-Colonist.Enable = 1
+WobgobWorld.Enable = 1

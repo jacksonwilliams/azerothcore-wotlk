@@ -906,8 +906,7 @@ class spell_mage_summon_water_elemental : public SpellScript
         Unit* caster = GetCaster();
 
         if (Creature* pet = ObjectAccessor::GetCreature(*caster, caster->GetPetGUID()))
-            if (!pet->IsAlive())
-                pet->ToTempSummon()->UnSummon();
+            pet->ToTempSummon()->UnSummon();
 
         // Glyph of Eternal Water
         if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
@@ -916,6 +915,7 @@ class spell_mage_summon_water_elemental : public SpellScript
             caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
 
         if (Creature* pet = ObjectAccessor::GetCreature(*caster, caster->GetPetGUID()))
+        {
             if (pet->GetCharmInfo() && caster->ToPlayer())
             {
                 pet->m_CreatureSpellCooldowns.clear();
@@ -924,6 +924,7 @@ class spell_mage_summon_water_elemental : public SpellScript
                 pet->GetCharmInfo()->SetSpellAutocast(spellEntry, true);
                 caster->ToPlayer()->CharmSpellInitialize();
             }
+        }
     }
 
     void Register() override

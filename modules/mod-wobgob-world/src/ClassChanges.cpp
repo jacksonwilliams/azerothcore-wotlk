@@ -10,7 +10,7 @@ class ClassChangesDatabase : public DatabaseScript
 public:
     ClassChangesDatabase() : DatabaseScript("ClassChangesDatabase") {}
 
-    std::string path = "/modules/mod-class-changes/sql/";
+    std::string path = "/modules/mod-wobgob-world/sql/";
     void OnAfterDatabasesLoaded(uint32 updateFlags) override
     {
         if (DBUpdater<LoginDatabaseConnection>::IsEnabled(updateFlags))

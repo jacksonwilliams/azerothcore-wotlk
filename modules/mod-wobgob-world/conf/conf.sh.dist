@@ -6,27 +6,27 @@
 ## BASE SQL
 
 DB_AUTH_CUSTOM_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/auth/base/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/auth/base/"
 )
 
 DB_CHARACTERS_CUSTOM_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/characters/base/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/characters/base/"
 )
 
 DB_WORLD_CUSTOM_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/world/base/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/world/base/"
 )
 
 ## UPDATES
 
 DB_AUTH_UPDATES_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/auth/updates/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/auth/updates/"
 )
 
 DB_CHARACTERS_UPDATES_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/characters/updates/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/characters/updates/"
 )
 
 DB_WORLD_UPDATES_PATHS+=(
-	"$MOD_COLONIST_ROOT/sql/world/updates/"
+	"$MOD_WOBGOB_WORLD_ROOT/sql/world/updates/"
 )

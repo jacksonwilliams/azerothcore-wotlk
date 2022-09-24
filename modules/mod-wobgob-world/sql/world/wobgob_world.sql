@@ -14,6 +14,7 @@ UPDATE `item_template` SET `maxcount` = 0, `stackable` = 250 WHERE `entry` IN (5
 UPDATE `item_template` SET `maxcount` = 0, `stackable` = 250 WHERE `entry` IN (7676, 2892, 2893, 8984, 8985, 20844, 22053, 22054, 43232, 43233, 3775, 3776, 5237, 6951, 9186, 6947, 6949, 6950, 8926, 8927, 8928, 21927, 43230, 43231, 10918, 10920, 10921, 10922, 22055, 43234, 43235, 21835, 43237);
 
 -- Water Elemental Spells
+DELETE FROM `creature_template_spell` WHERE `CreatureID` IN (510, 37994);
 REPLACE INTO `creature_template_spell` VALUES (510, 0, 31707, 12340);
 REPLACE INTO `creature_template_spell` VALUES (510, 1, 33395, 12340);
 REPLACE INTO `creature_template_spell` VALUES (510, 2, 6082314, 12340);

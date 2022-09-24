@@ -906,13 +906,10 @@ class spell_mage_summon_water_elemental : public SpellScript
         Unit* caster = GetCaster();
 
         if (Creature* pet = ObjectAccessor::GetCreature(*caster, caster->GetPetGUID()))
-            pet->ToTempSummon()->UnSummon();
+            if (!pet->IsAlive())
+                pet->ToTempSummon()->UnSummon();
 
-        // Glyph of Eternal Water
-        if (caster->HasAura(SPELL_MAGE_GLYPH_OF_ETERNAL_WATER))
-            caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
-        else
-            caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_TEMPORARY, true);
+        caster->CastSpell(caster, SPELL_MAGE_SUMMON_WATER_ELEMENTAL_PERMANENT, true);
 
         if (Creature* pet = ObjectAccessor::GetCreature(*caster, caster->GetPetGUID()))
         {

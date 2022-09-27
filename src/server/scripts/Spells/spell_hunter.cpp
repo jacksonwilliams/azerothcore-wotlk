@@ -904,26 +904,6 @@ class spell_hun_misdirection_proc : public AuraScript
     }
 };
 
-// 781 - Disengage
-class spell_hun_disengage : public SpellScript
-{
-    PrepareSpellScript(spell_hun_disengage);
-
-    SpellCastResult CheckCast()
-    {
-        Unit* caster = GetCaster();
-        if (caster->GetTypeId() == TYPEID_PLAYER && !caster->IsInCombat())
-            return SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW;
-
-        return SPELL_CAST_OK;
-    }
-
-    void Register() override
-    {
-        OnCheckCast += SpellCheckCastFn(spell_hun_disengage::CheckCast);
-    }
-};
-
 // 1515 - Tame Beast
 class spell_hun_tame_beast : public SpellScript
 {
@@ -1315,7 +1295,6 @@ void AddSC_hunter_spell_scripts()
     RegisterSpellScript(spell_hun_aspect_of_the_beast);
     RegisterSpellScript(spell_hun_ascpect_of_the_viper);
     RegisterSpellScript(spell_hun_chimera_shot);
-    RegisterSpellScript(spell_hun_disengage);
     RegisterSpellScript(spell_hun_improved_mend_pet);
     RegisterSpellScript(spell_hun_invigoration);
     RegisterSpellScript(spell_hun_last_stand_pet);

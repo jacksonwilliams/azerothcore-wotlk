@@ -358,7 +358,7 @@ private:
         if (!attacker || !attacker->GetMap())
             return false;
 
-        if (!inDungeon(target, attacker) || inBattleground(target, attacker))
+        if (!inDungeon(target, attacker) && !inBattleground(target, attacker))
             return false;
 
         return true;
@@ -522,7 +522,7 @@ public:
         if (!creature || !creature->GetMap())
             return;
 
-        if (!creature->GetMap()->IsDungeon())
+        if (!creature->GetMap()->IsDungeon() && !creature->GetMap()->IsBattleground())
             return;
 
         if (((creature->IsHunterPet() || creature->IsPet() || creature->IsSummon()) && creature->IsControlledByPlayer()))
@@ -571,7 +571,7 @@ public:
         uint32 scaledCurrentHealth = previousHealth && previousMaxHealth ? float(scaledHealth) / float(previousMaxHealth) * float(previousHealth) : 0;
 
         static bool initialized;
-        if (creatureInfo->entry = creature->GetEntry() == BOSS_VAELASTRASZ)
+        if ((creatureInfo->entry = creature->GetEntry()) == BOSS_VAELASTRASZ)
         {
             creature->SetHealth(scaledCurrentHealth);
             creature->UpdateAllStats();

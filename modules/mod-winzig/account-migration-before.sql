@@ -2,7 +2,7 @@
 START TRANSACTION;
 
 -- ADD NEW COLUMN
-ALTER TABLE `reagent_bank` ADD COLUMN `account_id` INT NOT NULL BEFORE `character_id`;
+ALTER TABLE `reagent_bank` ADD COLUMN `account_id` INT NOT NULL FIRST;
 
 -- UPDATE reagent_bank add account ids
 UPDATE `reagent_bank` rb

@@ -599,14 +599,9 @@ public:
         if (!creature->IsAlive())
             return;
 
-<<<<<<< HEAD
         if (!creature->GetMap()->IsDungeon() && !creature->GetMap()->IsBattleground())
-            return;
-=======
-        if (!creature->GetMap()->IsDungeon())
             if (!(std::find(WorldBossArray.begin(), WorldBossArray.end(), creature->GetEntry()) != WorldBossArray.end()))
                 return;
->>>>>>> blot/world-boss-scaling
 
         if (((creature->IsHunterPet() || creature->IsPet() || creature->IsSummon()) && creature->IsControlledByPlayer()))
             return;
@@ -650,11 +645,7 @@ public:
         uint32 scaledCurrentHealth = previousHealth && previousMaxHealth ? float(scaledHealth) / float(previousMaxHealth) * float(previousHealth) : 0;
 
         static bool initialized;
-<<<<<<< HEAD
-        if ((creatureInfo->entry = creature->GetEntry()) == BOSS_VAELASTRASZ)
-=======
         if (std::find(WorldBossArray.begin(), WorldBossArray.end(), creature->GetEntry()) != WorldBossArray.end())
->>>>>>> blot/world-boss-scaling
         {
             creature->SetHealth(scaledCurrentHealth);
             creature->UpdateAllStats();

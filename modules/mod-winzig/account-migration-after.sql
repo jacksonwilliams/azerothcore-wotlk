@@ -19,7 +19,7 @@ FROM reagent_bank
 GROUP BY account_id, item_entry, item_subclass;
 
 -- REPLACE reagent_bank with temp table to combine items on account.
-truncate reagent_bank;
+TRUNCATE reagent_bank;
 INSERT INTO reagent_bank SELECT * FROM _temp_reagent_bank;
 
 -- DROP unused column

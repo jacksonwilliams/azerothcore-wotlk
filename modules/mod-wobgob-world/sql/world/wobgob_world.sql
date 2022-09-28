@@ -21,3 +21,11 @@ REPLACE INTO `creature_template_spell` VALUES (510, 2, 6082314, 12340);
 REPLACE INTO `creature_template_spell` VALUES (37994, 0, 72898, 11159);
 REPLACE INTO `creature_template_spell` VALUES (37994, 1, 33395, 12340);
 REPLACE INTO `creature_template_spell` VALUES (37994, 2, 6082314, 12340);
+
+-- Add Crimson Vial to rogue trainers
+DELETE FROM `npc_trainer` WHERE `SpellID` = 6082315;
+INSERT INTO `npc_trainer` (`ID`, `SpellID`, `MoneyCost`, `ReqLevel`)
+VALUES (200016, 6082315, 200, 8);
+
+-- Remove Technique: Glyph of Eternal Water
+DELETE FROM `npc_vendor` WHERE `item` = 50166;

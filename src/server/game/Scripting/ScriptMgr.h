@@ -73,6 +73,7 @@ class Vehicle;
 class WorldObject;
 class WorldPacket;
 class WorldSocket;
+class CharacterCreateInfo;
 
 struct AchievementCriteriaData;
 struct AuctionEntry;
@@ -622,6 +623,9 @@ public:
 
     // Called when a CreatureAI object is needed for the creature.
     [[nodiscard]] virtual CreatureAI* GetCreatureAI(Creature* /*creature*/) const { return nullptr; }
+
+    //Called Whenever the UNIT_BYTE2_FLAG_FFA_PVP Bit is set on the creature
+    virtual void OnFfaPvpStateUpdate(Creature* /*creature*/, bool /*InPvp*/) {}
 };
 
 class AllItemScript : public ScriptObject
@@ -746,6 +750,10 @@ public:
 
     // Called when a CreatureAI object is needed for the creature.
     virtual CreatureAI* GetAI(Creature* /*creature*/) const { return nullptr; }
+
+    //Called whenever the UNIT_BYTE2_FLAG_FFA_PVP bit is Changed on the player
+    virtual void OnFfaPvpStateUpdate(Creature* /*player*/, bool /*result*/) { }
+
 };
 
 class GameObjectScript : public ScriptObject, public UpdatableScript<GameObject>
@@ -1024,6 +1032,9 @@ public:
     // Called when a player's money is modified (before the modification is done)
     virtual void OnMoneyChanged(Player* /*player*/, int32& /*amount*/) { }
 
+    // Called before looted money is added to a player
+    virtual void OnBeforeLootMoney(Player* /*player*/, Loot* /*loot*/) {}
+
     // Called when a player gains XP (before anything is given)
     virtual void OnGiveXP(Player* /*player*/, uint32& /*amount*/, Unit* /*victim*/) { }
 
@@ -1180,6 +1191,9 @@ public:
     // After receiving item as a group roll reward
     virtual void OnGroupRollRewardItem(Player* /*player*/, Item* /*item*/, uint32 /*count*/, RollVote /*voteType*/, Roll* /*roll*/) { }
 
+    //Before opening an item
+    [[nodiscard]] virtual bool OnBeforeOpenItem(Player* /*player*/, Item* /*item*/) { return true; }
+
     // After completed a quest
     [[nodiscard]] virtual bool OnBeforeQuestComplete(Player* /*player*/, uint32 /*quest_id*/) { return true; }
 
@@ -1250,6 +1264,8 @@ public:
 
     virtual void OnGetMaxSkillValue(Player* /*player*/, uint32 /*skill*/, int32& /*result*/, bool /*IsPure*/) { }
 
+    [[nodiscard]] virtual bool OnUpdateFishingSkill(Player* /*player*/, int32 /*skill*/, int32 /*zone_skill*/, int32 /*chance*/, int32 /*roll*/) { return true; }
+
     [[nodiscard]] virtual bool CanAreaExploreAndOutdoor(Player* /*player*/) { return true; }
 
     virtual void OnVictimRewardBefore(Player* /*player*/, Player* /*victim*/, uint32& /*killer_title*/, uint32& /*victim_title*/) { }
@@ -1302,6 +1318,9 @@ public:
 
     virtual void OnIsFFAPvP(Player* /*player*/, bool& /*result*/) { }
 
+    //Fires whenever the UNIT_BYTE2_FLAG_FFA_PVP bit is Changed on the player
+    virtual void OnFfaPvpStateUpdate(Player* /*player*/, bool /*result*/) { }
+
     virtual void OnIsPvP(Player* /*player*/, bool& /*result*/) { }
 
     virtual void OnGetMaxSkillValueForLevel(Player* /*player*/, uint16& /*result*/) { }
@@ -1319,6 +1338,9 @@ public:
     virtual void OnSetServerSideVisibilityDetect(Player* /*player*/, ServerSideVisibilityType& /*type*/, AccountTypes& /*sec*/) { }
 
     virtual void OnPlayerResurrect(Player* /*player*/, float /*restore_percent*/, bool /*applySickness*/) { }
+
+    // Called before selecting the graveyard when releasing spirit
+    virtual void OnBeforeChooseGraveyard(Player* /*player*/, TeamId /*teamId*/, bool /*nearCorpse*/, uint32& /*graveyardOverride*/) { }
 
     /**
      * @brief This hook called before player sending message in default chat
@@ -1454,6 +1476,9 @@ public:
 
     // Called when Password failed to change for Account
     virtual void OnFailedPasswordChange(uint32 /*accountId*/) { }
+
+    // Called when creating a character on the Account
+    [[nodiscard]] virtual bool CanAccountCreateCharacter(uint32 /*accountId*/, uint8 /*charRace*/, uint8 /*charClass*/) { return true;}
 };
 
 class GuildScript : public ScriptObject
@@ -2116,6 +2141,7 @@ public: /* CreatureScript */
     void OnCreatureUpdate(Creature* creature, uint32 diff);
     void OnCreatureAddWorld(Creature* creature);
     void OnCreatureRemoveWorld(Creature* creature);
+    void OnFfaPvpStateUpdate(Creature* creature, bool InPvp);
 
 public: /* GameObjectScript */
     bool OnGossipHello(Player* player, GameObject* go);
@@ -2200,6 +2226,7 @@ public: /* PlayerScript */
     void OnPlayerFreeTalentPointsChanged(Player* player, uint32 newPoints);
     void OnPlayerTalentsReset(Player* player, bool noCost);
     void OnPlayerMoneyChanged(Player* player, int32& amount);
+    void OnBeforeLootMoney(Player* player, Loot* loot);
     void OnGivePlayerXP(Player* player, uint32& amount, Unit* victim);
     bool OnPlayerReputationChange(Player* player, uint32 factionID, int32& standing, bool incremental);
     void OnPlayerReputationRankChange(Player* player, uint32 factionID, ReputationRank newRank, ReputationRank oldRank, bool increased);
@@ -2253,6 +2280,7 @@ public: /* PlayerScript */
     void OnCreateItem(Player* player, Item* item, uint32 count);
     void OnQuestRewardItem(Player* player, Item* item, uint32 count);
     void OnGroupRollRewardItem(Player* player, Item* item, uint32 count, RollVote voteType, Roll* roll);
+    bool OnBeforeOpenItem(Player* player, Item* item);
     bool OnBeforePlayerQuestComplete(Player* player, uint32 quest_id);
     void OnQuestComputeXP(Player* player, Quest const* quest, uint32& xpValue);
     void OnBeforePlayerDurabilityRepair(Player* player, ObjectGuid npcGUID, ObjectGuid itemGUID, float& discountMod, uint8 guildBank);
@@ -2286,6 +2314,7 @@ public: /* PlayerScript */
     void OnDeleteFromDB(CharacterDatabaseTransaction trans, uint32 guid);
     bool CanRepopAtGraveyard(Player* player);
     void OnGetMaxSkillValue(Player* player, uint32 skill, int32& result, bool IsPure);
+    bool OnUpdateFishingSkill(Player* player, int32 skill, int32 zone_skill, int32 chance, int32 roll);
     bool CanAreaExploreAndOutdoor(Player* player);
     void OnVictimRewardBefore(Player* player, Player* victim, uint32& killer_title, uint32& victim_title);
     void OnVictimRewardAfter(Player* player, Player* victim, uint32& killer_title, uint32& victim_rank, float& honor_f);
@@ -2310,6 +2339,7 @@ public: /* PlayerScript */
     bool NotAvoidSatisfy(Player* player, DungeonProgressionRequirements const* ar, uint32 target_map, bool report);
     bool NotVisibleGloballyFor(Player* player, Player const* u);
     void OnGetArenaPersonalRating(Player* player, uint8 slot, uint32& result);
+    void OnFfaPvpStateUpdate(Player* player, bool result);
     void OnGetArenaTeamId(Player* player, uint8 slot, uint32& result);
     void OnIsFFAPvP(Player* player, bool& result);
     void OnIsPvP(Player* player, bool& result);
@@ -2321,6 +2351,7 @@ public: /* PlayerScript */
     void OnSetServerSideVisibility(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
     void OnSetServerSideVisibilityDetect(Player* player, ServerSideVisibilityType& type, AccountTypes& sec);
     void OnPlayerResurrect(Player* player, float restore_percent, bool applySickness);
+    void OnBeforeChooseGraveyard(Player* player, TeamId teamId, bool nearCorpse, uint32& graveyardOverride);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg, Player* receiver);
     bool CanPlayerUseChat(Player* player, uint32 type, uint32 language, std::string& msg, Group* group);
@@ -2349,6 +2380,7 @@ public: /* AccountScript */
     void OnFailedEmailChange(uint32 accountId);
     void OnPasswordChange(uint32 accountId);
     void OnFailedPasswordChange(uint32 accountId);
+    bool CanAccountCreateCharacter(uint32 accountId, uint8 charRace, uint8 charClass);
 
 public: /* GuildScript */
     void OnGuildAddMember(Guild* guild, Player* player, uint8& plRank);

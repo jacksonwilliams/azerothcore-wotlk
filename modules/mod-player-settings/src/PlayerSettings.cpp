@@ -16,12 +16,45 @@
 #include <cstdlib>
 #include <vector>
 
-#define BOSS_VAELASTRASZ    13020
-
 // DPS count as 1 offensive unit. Tanks and healers count as 1 defensive unit.
-
 // 5 man: 1 tank, 3 dps, 1 healer = 3 offensive units and 2 defensive units.
 const float Offence5M = 1 / 3.0f, Defence5M = 1 / 2.0f;
+
+enum WorldBosses
+{
+    BOSS_VAELASTRASZ    = 13020,
+    BOSS_TAERAR         = 14890,
+    BOSS_EMERISS        = 14889,
+    BOSS_LETHON         = 14888,
+    BOSS_YSONDRE        = 14887,
+    BOSS_AZUREGOS       = 6109,
+    BOSS_KAZZAK         = 12397,
+    BOSS_MAWS           = 15571,
+    BOSS_ERANIKUS       = 15491,
+};
+
+std::array<uint32, 9> WorldBossArray =
+{
+    BOSS_VAELASTRASZ, BOSS_TAERAR, BOSS_EMERISS, BOSS_LETHON,
+    BOSS_YSONDRE, BOSS_AZUREGOS, BOSS_KAZZAK, BOSS_MAWS,
+    BOSS_ERANIKUS
+};
+
+enum WorldBossZones
+{
+    ZONE_TAERAR     = 856,  // Twilight Grove
+    ZONE_EMERISS    = 1111,  // Dream Bough
+    ZONE_LETHON     = 356,  // Seradane
+    ZONE_YSONDRE    = 438,  // Bough Shadow
+    ZONE_AZUREGOS   = 16,  // Azshara
+    ZONE_KAZZAK     = 73  // The Tainted Scar
+};
+
+std::array<uint32, 6> WorldBossZoneArray =
+{
+    ZONE_TAERAR, ZONE_EMERISS, ZONE_LETHON, ZONE_YSONDRE,
+    ZONE_AZUREGOS, ZONE_KAZZAK
+};
 
 enum Spells
 {
@@ -85,6 +118,39 @@ class PlayerSettingsPlayerScript : public PlayerScript
 public:
     PlayerSettingsPlayerScript() : PlayerScript("PlayerSettingsPlayer") {}
 
+    
+    void OnUpdateArea(Player* player, uint32 oldArea, uint32 newArea) override
+    {
+        if (!enabled)
+            return;
+
+        if (player->IsGameMaster())
+            return;
+
+        Map *map = player->GetMap();
+        PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+        Map::PlayerList const &players = map->GetPlayers();
+        mapInfo->nplayers = map->GetPlayersCountExceptGMs();
+
+        if (!mapInfo->nplayers)
+            mapInfo->nplayers = 1;
+
+        if (!mapInfo->veto)
+            mapInfo->veto = mapInfo->nplayers;
+
+        if (mapInfo->nplayers > 5 && oldArea != newArea)
+        {
+            if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), newArea) != WorldBossZoneArray.end())
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+                    if (Player *player = iter->GetSource())
+                            ChatHandler(player->GetSession()).PSendSysMessage("%s has entered a World Boss area. The minions of hell grow stronger.", player->GetName().c_str());
+
+            if (std::find(WorldBossZoneArray.begin(), WorldBossZoneArray.end(), oldArea) != WorldBossZoneArray.end())
+                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+                    if (Player *player = iter->GetSource())
+                            ChatHandler(player->GetSession()).PSendSysMessage("%s has left a World Boss area. The minions of hell grow weaker.", player->GetName().c_str());
+        }
+    }
     void OnGiveXP(Player *player, uint32 &amount, Unit *victim) override
     {
         if (victim)
@@ -350,6 +416,17 @@ private:
         return target->GetMap()->IsBattleground() && attacker->GetMap()->IsBattleground();
     }
 
+    bool isWorldBoss(Unit *target, Unit *attacker)
+    {
+        if (std::find(WorldBossArray.begin(), WorldBossArray.end(), target->GetEntry()) != WorldBossArray.end())
+            return true;
+
+        if (std::find(WorldBossArray.begin(), WorldBossArray.end(), attacker->GetEntry()) != WorldBossArray.end())
+            return true;
+
+        return false;
+    }
+
     bool check(Unit* attacker, Unit* target)
     {
         if (!target || !target->GetMap())
@@ -357,6 +434,9 @@ private:
 
         if (!attacker || !attacker->GetMap())
             return false;
+
+        if (isWorldBoss(target, attacker))
+            return true;
 
         if (!inDungeon(target, attacker) && !inBattleground(target, attacker))
             return false;
@@ -369,7 +449,10 @@ private:
         PlayerSettingsMapInfo *mapInfo = target->GetMap()->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
         InstanceMap *instanceMap = ((InstanceMap *)sMapMgr->FindMap(target->GetMapId(), target->GetInstanceId()));
 
-        if (!instanceMap)
+        // is this needed? check is done before modify is called
+        // if (!instanceMap)
+        //     return amount;
+        if (!check(attacker, target))
             return amount;
 
         uint32 nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
@@ -449,6 +532,7 @@ public:
             return;
 
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+        Map::PlayerList const &players = map->GetPlayers();
         mapInfo->nplayers = map->GetPlayersCountExceptGMs();
 
         if (!mapInfo->nplayers)
@@ -457,15 +541,15 @@ public:
         if (!mapInfo->veto)
             mapInfo->veto = mapInfo->nplayers;
 
-        if (map->GetEntry()->IsDungeon() && player)
-        {
-            Map::PlayerList const &players = map->GetPlayers();
-
-            if (mapInfo->nplayers > 1)
-                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-                    if (Player *handle = iter->GetSource())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has entered the instance. The minions of hell grow stronger.", player->GetName().c_str());
-        }
+        for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+            if (Player *player = iter->GetSource())
+            {
+                if (mapInfo->nplayers > 1)
+                {
+                    if (map->GetEntry()->IsDungeon())
+                        ChatHandler(player->GetSession()).PSendSysMessage("%s has entered the instance. The minions of hell grow stronger.", player->GetName().c_str());
+                }
+            }
     }
 
     void OnPlayerLeaveAll(Map *map, Player *player)
@@ -477,30 +561,20 @@ public:
             return;
 
         PlayerSettingsMapInfo *mapInfo = map->CustomData.GetDefault<PlayerSettingsMapInfo>("PlayerSettingsMapInfo");
+        Map::PlayerList const &players = map->GetPlayers();
 
-        if (map->GetEntry() && map->GetEntry()->IsDungeon())
-        {
-            bool check = false;
-            Map::PlayerList const &players = map->GetPlayers();
-
-            for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-                if (Player *player = iter->GetSource())
-                    if (player->IsInCombat())
-                        check = true;
-
-            if (!check)
-                mapInfo->nplayers = map->GetPlayersCountExceptGMs() - 1;
-        }
-
-        if (map->GetEntry()->IsDungeon())
-        {
-            Map::PlayerList const &players = map->GetPlayers();
-
-            if (mapInfo->nplayers > 0)
-                for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
-                    if (Player *handle = iter->GetSource())
-                        ChatHandler(handle->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
-        }
+        for (Map::PlayerList::const_iterator iter = players.begin(); iter != players.end(); ++iter)
+            if (Player *player = iter->GetSource())
+            {
+                if (!player->IsInCombat())
+                    mapInfo->nplayers = map->GetPlayersCountExceptGMs() - 1;
+        
+                if (mapInfo->nplayers > 0)
+                {
+                    if (map->GetEntry()->IsDungeon())
+                        ChatHandler(player->GetSession()).PSendSysMessage("%s has left the instance. The minions of hell grow weaker.", player->GetName().c_str());
+                }
+            }
     }
 };
 
@@ -521,9 +595,18 @@ public:
     {
         if (!creature || !creature->GetMap())
             return;
+        
+        if (!creature->IsAlive())
+            return;
 
+<<<<<<< HEAD
         if (!creature->GetMap()->IsDungeon() && !creature->GetMap()->IsBattleground())
             return;
+=======
+        if (!creature->GetMap()->IsDungeon())
+            if (!(std::find(WorldBossArray.begin(), WorldBossArray.end(), creature->GetEntry()) != WorldBossArray.end()))
+                return;
+>>>>>>> blot/world-boss-scaling
 
         if (((creature->IsHunterPet() || creature->IsPet() || creature->IsSummon()) && creature->IsControlledByPlayer()))
             return;
@@ -533,15 +616,11 @@ public:
         InstanceMap *instanceMap = ((InstanceMap *)sMapMgr->FindMap(creature->GetMapId(), creature->GetInstanceId()));
         PlayerSettingsCreatureInfo *creatureInfo = creature->CustomData.GetDefault<PlayerSettingsCreatureInfo>("PlayerSettingsCreatureInfo");
 
-        if (!creature->IsAlive())
-            return;
-
+        creatureInfo->entry = creature->GetEntry();
         creatureInfo->nplayers = std::max(mapInfo->nplayers, mapInfo->veto);
 
         if (!creatureInfo->nplayers)
             return;
-
-        creatureInfo->entry = creature->GetEntry();
 
         CreatureBaseStats const *stats = sObjectMgr->GetCreatureBaseStats(creature->getLevel(), creatureTemplate->unit_class);
         uint32 baseHealth = stats->GenerateHealth(creatureTemplate);
@@ -571,21 +650,24 @@ public:
         uint32 scaledCurrentHealth = previousHealth && previousMaxHealth ? float(scaledHealth) / float(previousMaxHealth) * float(previousHealth) : 0;
 
         static bool initialized;
+<<<<<<< HEAD
         if ((creatureInfo->entry = creature->GetEntry()) == BOSS_VAELASTRASZ)
+=======
+        if (std::find(WorldBossArray.begin(), WorldBossArray.end(), creature->GetEntry()) != WorldBossArray.end())
+>>>>>>> blot/world-boss-scaling
         {
             creature->SetHealth(scaledCurrentHealth);
             creature->UpdateAllStats();
             return;
         }
-        else
+
+        if (!initialized)
         {
-            if (!initialized)
-            {
-                initialized = true;
-                creature->SetHealth(scaledCurrentHealth);
-                creature->UpdateAllStats();
-            }
+            initialized = true;
+            creature->SetHealth(scaledCurrentHealth);
+            creature->UpdateAllStats();
         }
+
     }
 };
 

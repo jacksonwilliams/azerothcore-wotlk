@@ -2,15 +2,12 @@
 START TRANSACTION;
 
 -- ADD NEW COLUMN
-ALTER TABLE `reagent_bank`
-ADD COLUMN `account_id` INT NOT NULL,
-DROP PRIMARY KEY,
-ADD PRIMARY KEY (`account_id`, `item_entry`);
+ALTER TABLE `reagent_bank` ADD COLUMN `account_id` INT NOT NULL BEFORE `character_id`;
 
 -- UPDATE reagent_bank add account ids
-UPDATE `reagent_bank`
-INNER JOIN `characters`
-ON `reagent_bank`.`character_id` = `characters`.`guid`
-SET `reagent_bank`.`account_id` = `characters`.`account`;
+UPDATE `reagent_bank` rb
+INNER JOIN `characters` c 
+ON rb.`character_id` = c.`guid` 
+SET rb.`account_id` = c.`account`;
 
 COMMIT;

@@ -22,10 +22,9 @@ GROUP BY account_id, item_entry, item_subclass;
 TRUNCATE reagent_bank;
 INSERT INTO reagent_bank SELECT * FROM _temp_reagent_bank;
 
--- DROP unused column
+-- UPDATE primary key
 ALTER TABLE `reagent_bank`
 DROP PRIMARY KEY,
-ADD PRIMARY KEY (`account_id`, `item_entry`),
-DROP COLUMN `character_id`;
+ADD PRIMARY KEY (`account_id`, `item_entry`);
 
 COMMIT;

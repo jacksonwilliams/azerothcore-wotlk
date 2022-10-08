@@ -145,6 +145,7 @@ void KillRewarder::_RewardHonor(Player* player)
 void KillRewarder::_RewardXP(Player* player, float rate)
 {
     uint32 xp(_xp);
+
     if (_group)
     {
         // 4.2.1. If player is in group, adjust XP:
@@ -152,12 +153,13 @@ void KillRewarder::_RewardXP(Player* player, float rate)
         //        * cut XP in half if _isFullXP is false.
         if (_maxNotGrayMember && player->IsAlive() &&
             _maxNotGrayMember->getLevel() >= player->getLevel())
-            xp = _isFullXP ?
+            xp = (_isFullXP || _group->isLFGGroup()) ?
                  uint32(xp * rate) :             // Reward FULL XP if all group members are not gray.
                  uint32(xp * rate / 2) + 1;      // Reward only HALF of XP if some of group members are gray.
         else
             xp = 0;
     }
+
     if (xp)
     {
         // 4.2.2. Apply auras modifying rewarded XP (SPELL_AURA_MOD_XP_PCT).
@@ -206,8 +208,15 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
     // Give reputation and kill credit only in PvE.
     if (!_isPvP || _isBattleGround)
     {
-        float xpRate = _group ? _groupRate * float(player->getLevel()) / _aliveSumLevel : /*Personal rate is 100%.*/ 1.0f; // Group rate depends on the sum of levels.
-        float reputationRate = _group ? _groupRate * float(player->getLevel()) / _sumLevel : /*Personal rate is 100%.*/ 1.0f; // Group rate depends on the sum of levels.
+        float xpRate = 1.0f;
+        float reputationRate = 1.0f;
+
+        if (_group)
+        {
+            xpRate = _group->isLFGGroup() ? _groupRate / _count : _groupRate * float(player->getLevel()) / _aliveSumLevel;
+            reputationRate = _group->isLFGGroup() ? _groupRate / _count : _groupRate * float(player->getLevel()) / _sumLevel;
+        }
+
         sScriptMgr->OnRewardKillRewarder(player, isDungeon, xpRate);                                              // Personal rate is 100%.
 
         if (_xp)
@@ -215,6 +224,7 @@ void KillRewarder::_RewardPlayer(Player* player, bool isDungeon)
             // 4.2. Give XP.
             _RewardXP(player, xpRate);
         }
+
         if (!_isBattleGround)
         {
             // If killer is in dungeon then all members receive full reputation at kill.

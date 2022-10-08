@@ -650,19 +650,10 @@ namespace lfg
             else
                 players.insert(player->GetGUID());
 
-            // Xinef: Check dungeon cooldown only for random dungeons
-            // Xinef: Moreover check this only if dungeon is not started, afterwards its obvious that players will have the cooldown
-            if (joinData.result == LFG_JOIN_OK && !isContinue && rDungeonId)
+            // Remove Dungeon Finder Cooldown if still exists
+            if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN))
             {
-                if (player->HasAura(LFG_SPELL_DUNGEON_COOLDOWN)) // xinef: added !isContinue
-                    joinData.result = LFG_JOIN_RANDOM_COOLDOWN;
-                else if (grp)
-                {
-                    for (GroupReference* itr = grp->GetFirstMember(); itr != nullptr && joinData.result == LFG_JOIN_OK; itr = itr->next())
-                        if (Player* plrg = itr->GetSource())
-                            if (plrg->HasAura(LFG_SPELL_DUNGEON_COOLDOWN)) // xinef: added !isContinue
-                                joinData.result = LFG_JOIN_PARTY_RANDOM_COOLDOWN;
-                }
+                player->RemoveAurasDueToSpell(LFG_SPELL_DUNGEON_COOLDOWN);
             }
         }
 
@@ -680,6 +671,27 @@ namespace lfg
             if (!isContinue)
             {
                 GetCompatibleDungeons(dungeons, players, joinData.lockmap);
+
+                for (LfgGuidSet::const_iterator it = players.begin(); it != players.end() && !dungeons.empty(); ++it)
+                {
+                    Player* player = ObjectAccessor::FindConnectedPlayer(*it);
+
+                    if (!player)
+                        continue;
+
+                    uint8 level = player->getLevel();
+                    bool isMaxLevel = level == sWorld->getIntConfig(CONFIG_MAX_PLAYER_LEVEL);
+
+                    if (isMaxLevel)
+                        continue;
+
+                    for (LfgDungeonSet::const_iterator it2 = dungeons.begin(); it2 != dungeons.end(); it2++)
+                        std::erase_if(dungeons, [level](int id){
+                            lfg::LFGDungeonData const* dungeon = sLFGMgr->GetLFGDungeon(id);
+                            return level > dungeon->minlevel + 10;
+                        });
+                }
+
                 if (dungeons.empty())
                     joinData.result = grp ? LFG_JOIN_PARTY_NOT_MEET_REQS : LFG_JOIN_NOT_MEET_REQS;
             }
@@ -1494,6 +1506,7 @@ namespace lfg
                 }
             }
         }
+
         if (!dungeons.empty())
             lockMap.clear();
     }

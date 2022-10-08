@@ -161,7 +161,7 @@ public:
             {
                 if (Unit* charmer = ObjectAccessor::GetUnit(*me, _charmerGUID))
                 {
-                    charmer->CastSpell(charmer, SPELL_MIND_EXHAUSTION, true);
+                    //charmer->CastSpell(charmer, SPELL_MIND_EXHAUSTION, true);
                     charmer->CastSpell(me, SPELL_MINDCONTROL_VISUAL, false);
                 }
             }
@@ -243,7 +243,7 @@ public:
                         events.ScheduleEvent(EVENT_FIREBALL, urand(12000, 15000));
                         break;
                     case EVENT_CONFLAGRATION:
-                        DoCastVictim(SPELL_CONFLAGRATION);
+                        DoCastRandomTarget(SPELL_CONFLAGRATION, 1, 30.0f, true, false);
                         if (me->GetVictim() && me->GetVictim()->HasAura(SPELL_CONFLAGRATION))
                             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 1))
                                 me->TauntApply(target);

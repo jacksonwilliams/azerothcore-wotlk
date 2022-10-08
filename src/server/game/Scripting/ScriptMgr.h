@@ -418,11 +418,15 @@ public:
     virtual void OnHeal(Unit* /*healer*/, Unit* /*reciever*/, uint32& /*gain*/) { }
 
     // Called when a unit deals damage to another unit
-    virtual void OnDamage(Unit* /*attacker*/, Unit* /*victim*/, uint32& /*damage*/) { }
+    virtual void OnDamage(Unit* /*attacker*/, Unit* /*victim*/, uint32& /*damage*/, DamageEffectType /*damagetype*/) { }
 
     // Called when DoT's Tick Damage is being Dealt
     // Attacker can be nullptr if he is despawned while the aura still exists on target
     virtual void ModifyPeriodicDamageAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
+
+    // Called when HoT's Tick Damage is being Dealt
+    // Attacker can be nullptr if he is despawned while the aura still exists on target
+    virtual void ModifyPeriodicHealthAurasTick(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
 
     // Called when Melee Damage is being Dealt
     virtual void ModifyMeleeDamage(Unit* /*target*/, Unit* /*attacker*/, uint32& /*damage*/) { }
@@ -2427,8 +2431,9 @@ public: /* Scheduled scripts */
 
 public: /* UnitScript */
     void OnHeal(Unit* healer, Unit* reciever, uint32& gain);
-    void OnDamage(Unit* attacker, Unit* victim, uint32& damage);
+    void OnDamage(Unit* attacker, Unit* victim, uint32& damage, DamageEffectType damagetype);
     void ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint32& damage);
+    void ModifyPeriodicHealthAurasTick(Unit* target, Unit* attacker, uint32& addHealth);
     void ModifyMeleeDamage(Unit* target, Unit* attacker, uint32& damage);
     void ModifySpellDamageTaken(Unit* target, Unit* attacker, int32& damage);
     void ModifyHealRecieved(Unit* target, Unit* attacker, uint32& addHealth);

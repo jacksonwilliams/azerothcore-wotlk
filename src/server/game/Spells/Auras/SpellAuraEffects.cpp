@@ -5924,19 +5924,25 @@ void AuraEffect::HandlePeriodicDummyAuraTick(Unit* target, Unit* caster) const
                     // Frenzied Regeneration
                     case 22842:
                         {
-                            // Converts up to 10 rage per second into health for $d.  Each point of rage is converted into ${$m2/10}.1% of max health.
-                            // Should be manauser
                             if (target->getPowerType() != POWER_RAGE)
                                 break;
-                            uint32 rage = target->GetPower(POWER_RAGE);
-                            // Nothing todo
-                            if (rage == 0)
-                                break;
-                            int32 mod = (rage < 100) ? rage : 100;
-                            int32 points = target->CalculateSpellDamage(target, GetSpellInfo(), 1);
-                            int32 regen = target->GetMaxHealth() * (mod * points / 10) / 1000;
+
+                            int32 regen = target->GetMaxHealth() * 0.08;
                             target->CastCustomSpell(target, 22845, &regen, 0, 0, true, 0, this);
-                            target->SetPower(POWER_RAGE, rage - mod);
+                            break;
+                        }
+                }
+                break;
+            }
+        case SPELLFAMILY_ROGUE:
+            {
+                switch(GetSpellInfo()->Id)
+                {
+                    // Crimson Vial
+                    case 6082315:
+                        {
+                            int32 regen = target->GetMaxHealth() * 0.05;
+                            target->CastCustomSpell(target, 6082316, &regen, 0, 0, true, 0, this);
                             break;
                         }
                 }
@@ -6715,7 +6721,7 @@ void AuraEffect::HandlePeriodicHealAurasTick(Unit* target, Unit* caster) const
     uint32 heal = uint32(damage);
 
     // Script Hook For HandlePeriodicDamageAurasTick -- Allow scripts to change the Damage pre class mitigation calculations
-    sScriptMgr->ModifyPeriodicDamageAurasTick(target, caster, heal);
+    sScriptMgr->ModifyPeriodicHealthAurasTick(target, caster, heal);
 
     HealInfo healInfo(caster, target, heal, GetSpellInfo(), GetSpellInfo()->GetSchoolMask());
     Unit::CalcHealAbsorb(healInfo);

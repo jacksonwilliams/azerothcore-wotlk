@@ -2047,6 +2047,16 @@ bool Aura::CanStackWith(Aura const* existingAura, bool remove) const
             return true;
     }
 
+    // Allow tracking of both herbs and minerals.
+    // Note: The following are client limitations:
+    //  * The minimap tracking icon will display whichever skill is activated second
+    //  * The minimap tracking list will only show a check mark next to the last
+    //    skill activated. Sometimes this bugs out and doesn't switch the check
+    //    mark. It has no effect on the actual tracking though.
+    //  * The minimap dots are yellow for both resources
+    if (m_spellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES) && existingSpellInfo->HasAura(SPELL_AURA_TRACK_RESOURCES))
+        return true;
+
     // check spell specific stack rules
     if (m_spellInfo->IsAuraExclusiveBySpecificWith(existingSpellInfo)
             || (sameCaster && m_spellInfo->IsAuraExclusiveBySpecificPerCasterWith(existingSpellInfo)))
@@ -2980,7 +2990,6 @@ void DynObjAura::FillTargetMap(std::map<Unit*, uint8>& targets, Unit* /*caster*/
 
         for (UnitList::iterator itr = targetList.begin(); itr != targetList.end(); ++itr)
         {
-            // xinef: check z level and los dependence
             Unit* target = *itr;
             float zLevel = GetDynobjOwner()->GetPositionZ();
             if (target->GetPositionZ() + 3.0f < zLevel || target->GetPositionZ() - 5.0f > zLevel)

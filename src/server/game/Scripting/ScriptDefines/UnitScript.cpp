@@ -45,11 +45,11 @@ void ScriptMgr::OnHeal(Unit* healer, Unit* reciever, uint32& gain)
     });
 }
 
-void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32& damage)
+void ScriptMgr::OnDamage(Unit* attacker, Unit* victim, uint32& damage, DamageEffectType damagetype)
 {
     ExecuteScript<UnitScript>([&](UnitScript* script)
     {
-        script->OnDamage(attacker, victim, damage);
+        script->OnDamage(attacker, victim, damage, damagetype);
     });
 }
 
@@ -58,6 +58,14 @@ void ScriptMgr::ModifyPeriodicDamageAurasTick(Unit* target, Unit* attacker, uint
     ExecuteScript<UnitScript>([&](UnitScript* script)
     {
         script->ModifyPeriodicDamageAurasTick(target, attacker, damage);
+    });
+}
+
+void ScriptMgr::ModifyPeriodicHealthAurasTick(Unit* target, Unit* attacker, uint32& damage)
+{
+    ExecuteScript<UnitScript>([&](UnitScript* script)
+    {
+        script->ModifyPeriodicHealthAurasTick(target, attacker, damage);
     });
 }
 

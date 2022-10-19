@@ -46,7 +46,7 @@ vector<uint32> yellowItemsBin;
 
 AuctionHouseBot::AuctionHouseBot()
 {
-    debug_Out = false;
+    debug_Out = true;
     debug_Out_Filters = false;
     AHBSeller = false;
     AHBBuyer = false;
@@ -748,8 +748,20 @@ void AuctionHouseBot::Update()
 void AuctionHouseBot::Initialize()
 {
     DisableItemStore.clear();
-    QueryResult result = WorldDatabase.Query("SELECT item FROM mod_auctionhousebot_disabled_items");
+    // JW: Lets use the disabled_items table as a whitelist instead.
+    // QueryResult result = WorldDatabase.Query("SELECT item FROM mod_auctionhousebot_disabled_items");
+    char disableQuery[] = "SELECT item FROM creature_loot_template UNION "
+        "SELECT item FROM reference_loot_template UNION "
+        "SELECT item FROM disenchant_loot_template UNION "
+        "SELECT item FROM fishing_loot_template UNION "
+        "SELECT item FROM gameobject_loot_template UNION "
+        "SELECT item FROM item_loot_template UNION "
+        "SELECT item FROM milling_loot_template UNION "
+        "SELECT item FROM pickpocketing_loot_template UNION "
+        "SELECT item FROM prospecting_loot_template UNION "
+        "SELECT item FROM skinning_loot_template";
 
+    QueryResult result = WorldDatabase.Query(disableQuery);
     if (result)
     {
         do
@@ -800,18 +812,19 @@ void AuctionHouseBot::Initialize()
             if (debug_Out)
                 LOG_ERROR("module", "AuctionHouseBot: \"{}\" failed", npcQuery);
         }
+        // JW: Lets use the disabled_items table as a whitelist instead.
+        // char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
+        //     "SELECT item FROM reference_loot_template UNION "
+        //     "SELECT item FROM disenchant_loot_template UNION "
+        //     "SELECT item FROM fishing_loot_template UNION "
+        //     "SELECT item FROM gameobject_loot_template UNION "
+        //     "SELECT item FROM item_loot_template UNION "
+        //     "SELECT item FROM milling_loot_template UNION "
+        //     "SELECT item FROM pickpocketing_loot_template UNION "
+        //     "SELECT item FROM prospecting_loot_template UNION "
+        //     "SELECT item FROM skinning_loot_template";
 
-        char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
-            "SELECT item FROM reference_loot_template UNION "
-            "SELECT item FROM disenchant_loot_template UNION "
-            "SELECT item FROM fishing_loot_template UNION "
-            "SELECT item FROM gameobject_loot_template UNION "
-            "SELECT item FROM item_loot_template UNION "
-            "SELECT item FROM milling_loot_template UNION "
-            "SELECT item FROM pickpocketing_loot_template UNION "
-            "SELECT item FROM prospecting_loot_template UNION "
-            "SELECT item FROM skinning_loot_template";
-
+        char lootQuery[] = "SELECT item FROM mod_auctionhousebot_disabled_items";
         results = WorldDatabase.Query(lootQuery);
         if (results)
         {

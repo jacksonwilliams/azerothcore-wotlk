@@ -1,15 +1,23 @@
-.PHONY: all create base wobgob clean
+HOST ?= 127.0.0.1
 
-all: create base wobgob
+.PHONY: all create base wobgob clean
+.PHONY: all create base wobgob retro clean
+
+all: create base wobgob retro
 
 create:
-	@mysql --user=acore --password=acore --execute 'CREATE DATABASE IF NOT EXISTS dbc'
+	@mysql --host=$(HOST) --user=wobgob --password=wobgob --execute 'CREATE DATABASE IF NOT EXISTS dbc'
 
 base:
-	@cat base/*.sql | mysql --user=acore --password=acore dbc
+	@cat base/*.sql | mysql --host=$(HOST) --user=wobgob --password=wobgob dbc
 
 wobgob:
-	@cat wobgob/*.sql | mysql --user=acore --password=acore dbc
+	@cat wobgob/*.sql | mysql --host=$(HOST) --user=wobgob --password=wobgob dbc
+
+retro:
+	@cat ../modules/mod-retroporting/sql/world/item_creation_item_template.sql | \
+		mysql --host=$(HOST) --user=wobgob --password=wobgob dbc
+	@cat retro/*.sql | mysql --host=$(HOST) --user=wobgob --password=wobgob dbc
 
 clean:
-	@mysql --user=acore --password=acore --execute 'DROP DATABASE dbc'
+	@mysql --host=$(HOST) --user=wobgob --password=wobgob --execute 'DROP DATABASE dbc'

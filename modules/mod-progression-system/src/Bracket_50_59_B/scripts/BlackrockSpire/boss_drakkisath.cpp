@@ -89,7 +89,14 @@ public:
                         events.ScheduleEvent(EVENT_CLEAVE, 8000);
                         break;
                     case EVENT_CONFLAGRATION:
-                        DoCastRandomTarget(SPELL_CONFLAGRATION, 1, 30.0f, true, false);
+                        DoCastVictim(SPELL_CONFLAGRATION);
+
+                        if (Unit* target = me->GetVictim())
+                        {
+                            _conflagrateTarget = me->GetVictim()->GetGUID();
+                            _conflagrateThreat = me->GetThreatMgr().GetThreat(me->GetVictim());
+                            me->GetThreatMgr().ModifyThreatByPercent(target, -100);
+                        }
                         events.ScheduleEvent(EVENT_CONFLAGRATION, 18000);
                         events.ScheduleEvent(EVENT_CHECK_CONFLAGRATION_TARGET, 10000);
                         break;
@@ -108,7 +115,7 @@ public:
                     case EVENT_CHECK_CONFLAGRATION_TARGET:
                         if (Unit* target = ObjectAccessor::GetUnit(*me, _conflagrateTarget))
                         {
-                            me->GetThreatMgr().addThreat(target, _conflagrateThreat);
+                            me->GetThreatMgr().AddThreat(target, _conflagrateThreat);
                         }
                         break;
                 }

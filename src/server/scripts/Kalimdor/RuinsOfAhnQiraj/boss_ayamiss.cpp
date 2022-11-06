@@ -80,10 +80,21 @@ const Position AltarPos       = { -9717.18f, 1517.72f, 27.4677f, 0.0f };
 
 struct boss_ayamiss : public BossAI
 {
-    boss_ayamiss(Creature* creature) : BossAI(creature, DATA_AYAMISS) { homePos = creature->GetHomePosition(); }
+    boss_ayamiss(Creature* creature) : BossAI(creature, DATA_AYAMISS)
+    {
+        homePos = creature->GetHomePosition();
+        Initialize();
+    }
+        
+    void Initialize()
+    {
+        airPhaseTimer = 120000;
+    }
+
 
     void Reset() override
     {
+        Initialize();
         BossAI::Reset();
         _phase = PHASE_AIR;
         _enraged = false;
@@ -162,7 +173,7 @@ struct boss_ayamiss : public BossAI
         }).Schedule(15s, 28s, [this](TaskContext context) {
             if (Unit* target = SelectTarget(SelectTargetMethod::Random, 0, 0, true))
             {
-                DoCast(target, SPELL_PARALYZE, true);
+                DoCastRandomTarget(SPELL_PARALYZE, 1, true);
                 instance->SetGuidData(DATA_PARALYZED, target->GetGUID());
                 DoCastAOE(RAND(SPELL_SUMMON_LARVA_A, SPELL_SUMMON_LARVA_B), true);
             }
@@ -213,7 +224,7 @@ struct boss_ayamiss : public BossAI
 
     void DamageTaken(Unit* /*attacker*/, uint32& damage, DamageEffectType, SpellSchoolMask) override
     {
-        if (_phase == PHASE_AIR && me->HealthBelowPctDamaged(70, damage))
+        if ((me->HealthBelowPctDamaged(70, damage) || airPhaseTimer <= 0) && _phase == PHASE_AIR)
         {
             _phase = PHASE_GROUND;
             me->ClearUnitState(UNIT_STATE_ROOT);
@@ -240,6 +251,9 @@ struct boss_ayamiss : public BossAI
 
         _scheduler.Update(diff,
             std::bind(&BossAI::DoMeleeAttackIfReady, this));
+
+        if (_phase == PHASE_AIR)
+            airPhaseTimer -= diff;
     }
 private:
     GuidList _swarmers;
@@ -247,6 +261,7 @@ private:
     bool _enraged;
     TaskScheduler _scheduler;
     Position homePos;
+    int32 airPhaseTimer;
 };
 
 struct npc_hive_zara_larva : public ScriptedAI

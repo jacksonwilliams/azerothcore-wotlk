@@ -48,7 +48,7 @@ AuctionHouseBot::AuctionHouseBot()
 {
     debug_Out = true;
     debug_Out_Filters = false;
-    AHBSeller = false;
+    AHBSeller = true;
     AHBBuyer = false;
 
     //Begin Filters
@@ -219,9 +219,10 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
     // only insert a few at a time, so as not to peg the processor
     for (uint32 cnt = 1; cnt <= items; cnt++)
     {
-        if (debug_Out)
-            LOG_ERROR("module", "AHSeller: {} count", cnt);
+        // if (debug_Out)
+        //     LOG_ERROR("module", "AHSeller: {} count", cnt);
 
+        // chose an item to post from the available item groups.
         uint32 itemID = 0;
         uint32 itemColor = 99;
         uint32 loopbreaker = 0;
@@ -378,11 +379,26 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
             if (prototype->Quality <= AHB_MAX_QUALITY)
             {
                 if (config->GetMaxStack(prototype->Quality) > 1 && item->GetMaxStackCount() > 1)
+                    // Green: 3, Blue: 2, Purple: 1
                     stackCount = urand(1, minValue(item->GetMaxStackCount(), config->GetMaxStack(prototype->Quality)));
                 else if (config->GetMaxStack(prototype->Quality) == 0 && item->GetMaxStackCount() > 1)
-                    stackCount = urand(1, item->GetMaxStackCount());
+                    // Grey & White == 0
+                    switch(prototype->SubClass)
+                    {
+                        case 5: // Cloth
+                        case 6: // Leather
+                        case 7: // Metal and stone
+                        case 9: // Herbs
+                            stackCount = item->GetMaxStackCount();
+                            break;
+
+                        default:
+                            stackCount = urand(1, item->GetMaxStackCount());
+                            break;
+                    }   
                 else
                     stackCount = 1;
+
                 buyoutPrice *= urand(config->GetMinPrice(prototype->Quality), config->GetMaxPrice(prototype->Quality));
                 buyoutPrice /= 100;
                 bidPrice = buyoutPrice * urand(config->GetMinBidPrice(prototype->Quality), config->GetMaxBidPrice(prototype->Quality));
@@ -397,22 +413,7 @@ void AuctionHouseBot::addNewAuctions(Player *AHBplayer, AHBConfig *config)
                 continue;
             }
 
-            uint32 etime = urand(1,3);
-            switch(etime)
-            {
-            case 1:
-                etime = 43200;
-                break;
-            case 2:
-                etime = 86400;
-                break;
-            case 3:
-                etime = 172800;
-                break;
-            default:
-                etime = 86400;
-                break;
-            }
+            uint32 etime = 172800;
             item->SetCount(stackCount);
 
             uint32 dep =  sAuctionMgr->GetAuctionDeposit(ahEntry, etime, item, stackCount);
@@ -748,20 +749,9 @@ void AuctionHouseBot::Update()
 void AuctionHouseBot::Initialize()
 {
     DisableItemStore.clear();
-    // JW: Lets use the disabled_items table as a whitelist instead.
-    // QueryResult result = WorldDatabase.Query("SELECT item FROM mod_auctionhousebot_disabled_items");
-    char disableQuery[] = "SELECT item FROM creature_loot_template UNION "
-        "SELECT item FROM reference_loot_template UNION "
-        "SELECT item FROM disenchant_loot_template UNION "
-        "SELECT item FROM fishing_loot_template UNION "
-        "SELECT item FROM gameobject_loot_template UNION "
-        "SELECT item FROM item_loot_template UNION "
-        "SELECT item FROM milling_loot_template UNION "
-        "SELECT item FROM pickpocketing_loot_template UNION "
-        "SELECT item FROM prospecting_loot_template UNION "
-        "SELECT item FROM skinning_loot_template";
 
-    QueryResult result = WorldDatabase.Query(disableQuery);
+    QueryResult result = WorldDatabase.Query("SELECT item FROM mod_auctionhousebot_disabled_items");
+
     if (result)
     {
         do
@@ -812,19 +802,18 @@ void AuctionHouseBot::Initialize()
             if (debug_Out)
                 LOG_ERROR("module", "AuctionHouseBot: \"{}\" failed", npcQuery);
         }
-        // JW: Lets use the disabled_items table as a whitelist instead.
-        // char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
-        //     "SELECT item FROM reference_loot_template UNION "
-        //     "SELECT item FROM disenchant_loot_template UNION "
-        //     "SELECT item FROM fishing_loot_template UNION "
-        //     "SELECT item FROM gameobject_loot_template UNION "
-        //     "SELECT item FROM item_loot_template UNION "
-        //     "SELECT item FROM milling_loot_template UNION "
-        //     "SELECT item FROM pickpocketing_loot_template UNION "
-        //     "SELECT item FROM prospecting_loot_template UNION "
-        //     "SELECT item FROM skinning_loot_template";
 
-        char lootQuery[] = "SELECT item FROM mod_auctionhousebot_disabled_items";
+        char lootQuery[] = "SELECT item FROM creature_loot_template UNION "
+            "SELECT item FROM reference_loot_template UNION "
+            "SELECT item FROM disenchant_loot_template UNION "
+            "SELECT item FROM fishing_loot_template UNION "
+            "SELECT item FROM gameobject_loot_template UNION "
+            "SELECT item FROM item_loot_template UNION "
+            "SELECT item FROM milling_loot_template UNION "
+            "SELECT item FROM pickpocketing_loot_template UNION "
+            "SELECT item FROM prospecting_loot_template UNION "
+            "SELECT item FROM skinning_loot_template";
+
         results = WorldDatabase.Query(lootQuery);
         if (results)
         {
@@ -1370,7 +1359,7 @@ void AuctionHouseBot::Initialize()
 
 void AuctionHouseBot::InitializeConfiguration()
 {
-    debug_Out = sConfigMgr->GetOption<bool>("AuctionHouseBot.DEBUG", false);
+    debug_Out = sConfigMgr->GetOption<bool>("AuctionHouseBot.DEBUG", true);
     debug_Out_Filters = sConfigMgr->GetOption<bool>("AuctionHouseBot.DEBUG_FILTERS", false);
 
     AHBSeller = sConfigMgr->GetOption<bool>("AuctionHouseBot.EnableSeller", false);
@@ -1458,8 +1447,8 @@ void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
     AuctionHouseEntry const* ahEntry = sAuctionHouseStore.LookupEntry(ah->GetHouseId());
     if (!ahEntry)
     {
-        if (debug_Out)
-            LOG_ERROR("module", "AHBot: {} returned as House Faction. Neutral", ah->GetHouseId());
+        // if (debug_Out)
+        //     LOG_ERROR("module", "AHBot: {} returned as House Faction. Neutral", ah->GetHouseId());
         config = &NeutralConfig;
     }
     else if (ahEntry->houseId == AUCTIONHOUSE_ALLIANCE)
@@ -1476,8 +1465,8 @@ void AuctionHouseBot::IncrementItemCounts(AuctionEntry* ah)
     }
     else
     {
-        if (debug_Out)
-            LOG_ERROR("module", "AHBot: {} returned as House Faction. Neutral", ah->GetHouseId());
+        // if (debug_Out)
+        //     LOG_ERROR("module", "AHBot: {} returned as House Faction. Neutral", ah->GetHouseId());
         config = &NeutralConfig;
     }
 

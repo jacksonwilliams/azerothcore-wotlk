@@ -1050,6 +1050,7 @@ public:
             {
                 if (sWarEffort->IsSaveNeeded())
                 {
+                    LOG_INFO("server.server", "WarEffort: Saving");
                     sWarEffort->SaveData();
                     sWarEffort->SetSaveStatus(false);
                 }
@@ -1267,6 +1268,15 @@ public:
 
     static bool HandleWareffortShowScores(ChatHandler* handler)
     {
+        handler->SendSysMessage("-- Module Enabled --");
+        if (sWarEffort->IsEnabled())
+        {
+            handler->SendSysMessage("Module War Effort is Enabled.");
+        }
+        else {
+             handler->SendSysMessage("Module War Effort is Disabled.");
+        }
+
         handler->SendSysMessage("-- Alliance Gathered Resources --");
         handler->SendSysMessage(sWarEffort->PrintOutMaterialCount(TEAM_ALLIANCE));
 

@@ -14,7 +14,7 @@
 #                     1 - Enabled
 #
 
-ModWarEffort.Enable = 0
+ModWarEffort.Enable = 1
 
 #
 #    ModWarEffort.Id
